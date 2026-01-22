@@ -65,29 +65,27 @@ export const Abilities = ({
     const [status, setStatus] = useState<Status | undefined>(undefined);
 
     const onCreateAction = useCallback((action: Action) => {
-        // Save to local storage if it's a custom action
-        if (action.id.startsWith('custom-') || action.id.startsWith('item-')) {
-            const storedAction: StoredCustomAction = {
-                id: action.id,
-                name: action.name,
-                iconUrl: action.imageSrc,
-                isGCD: action.type === 'gcd',
-                appliesBuff: appliesBuff,
-            };
+        // Save all actions to local storage
+        const storedAction: StoredCustomAction = {
+            id: action.id,
+            name: action.name,
+            iconUrl: action.imageSrc,
+            isGCD: action.type === 'gcd',
+            appliesBuff: appliesBuff,
+        };
 
-            if (action.type === 'gcd') {
-                storedAction.recastTime = action.recastTime;
-                storedAction.castTime = action.castTime;
-            } else {
-                storedAction.lateWeave = action.lateWeave;
-            }
-
-            if (appliesBuff && status) {
-                storedAction.buffDetails = statusToBuffDetails(status);
-            }
-
-            saveCustomAction(storedAction);
+        if (action.type === 'gcd') {
+            storedAction.recastTime = action.recastTime;
+            storedAction.castTime = action.castTime;
+        } else {
+            storedAction.lateWeave = action.lateWeave;
         }
+
+        if (appliesBuff && status) {
+            storedAction.buffDetails = statusToBuffDetails(status);
+        }
+
+        saveCustomAction(storedAction);
 
         createAction(action, status);
         setStatus(undefined);
