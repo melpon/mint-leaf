@@ -1,6 +1,11 @@
 import { getActionByID, getStatusByID } from '@/app/api'
 import { Action, GCD, Status, oGCD } from '../components/Canvas/types'
 
+// Helper function to clamp numeric values to valid ranges
+const clamp = (value: number, min: number, max: number): number => {
+    return Math.max(min, Math.min(max, value));
+}
+
 export const rotationToText = (rotation: Action[]): string => {
     return rotation.reduce((text: string, action: Action) => {
         const textSoFar = `${text ? text + '\n' : ''}${action.prepull ? action.prepull + ' ' : ''}${action.id} ${action.type === 'gcd' ? 'GCD' : 'oGCD'} ${action.type === 'gcd' ? (action.recastTime ?? 0) + ' ' : ''}${action.type === 'gcd' ? (action.castTime ?? 0) : ''}${action.type === 'ogcd' ? (action.lateWeave ? 'lateWeave' : 'normal') : ''}`
@@ -39,9 +44,9 @@ const parseActionLine = async (line: string): Promise<Action | null> => {
                     id: id,
                     name: action.name,
                     imageSrc: actionIconSrc,
-                    prepull: prepull ? parseFloat(prepull) : undefined,
-                    recastTime: recastTime ? parseFloat(recastTime) : undefined,
-                    castTime: castTime ? parseFloat(castTime) : undefined,
+                    prepull: prepull ? clamp(parseFloat(prepull), -30, 0) : undefined,
+                    recastTime: recastTime ? clamp(parseFloat(recastTime), 0, 30) : undefined,
+                    castTime: castTime ? clamp(parseFloat(castTime), 0, 30) : undefined,
                 } as GCD;
             case 'oGCD':
                 const [lateWeave] = tokens.slice(2);
@@ -50,7 +55,7 @@ const parseActionLine = async (line: string): Promise<Action | null> => {
                     id: id,
                     name: action.name,
                     imageSrc: actionIconSrc,
-                    prepull: prepull ? parseFloat(prepull) : undefined,
+                    prepull: prepull ? clamp(parseFloat(prepull), -30, 0) : undefined,
                     lateWeave: lateWeave === 'lateWeave' ? true : false,
                 } as oGCD;
             default:
@@ -78,8 +83,8 @@ const parseStatusLine = async (line: string): Promise<Status | null> => {
             name: status.name,
             imageSrc: statusIconSrc,
             color: color,
-            applicationDelay: parseFloat(applicationDelay),
-            duration: parseFloat(duration),
+            applicationDelay: clamp(parseFloat(applicationDelay), 0, 30),
+            duration: clamp(parseFloat(duration), 0, 999),
         } as Status;
     } catch (e) {
         return null;
