@@ -2,9 +2,10 @@ import styled from 'styled-components'
 import { Action, Status } from '../Canvas/types'
 import TextArea from 'antd/es/input/TextArea'
 import { Job } from '@/data/jobs'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ActionSelect } from './ActionSelect'
 import { BuffSelect } from './BuffSelect'
+import { saveCustomAction, statusToBuffDetails, StoredCustomAction } from '@/lib/customActionsStore'
 
 const AbilityContainer = styled.div`
     display: flex;
@@ -63,17 +64,41 @@ export const Abilities = ({
     const [appliesBuff, setAppliesBuff] = useState<boolean>(false);
     const [status, setStatus] = useState<Status | undefined>(undefined);
 
-    const onCreateAction = (action: Action) => {
+    const onCreateAction = useCallback((action: Action) => {
+        // Save to local storage if it's a custom action
+        if (action.id.startsWith('custom-') || action.id.startsWith('item-')) {
+            const storedAction: StoredCustomAction = {
+                id: action.id,
+                name: action.name,
+                iconUrl: action.imageSrc,
+                isGCD: action.type === 'gcd',
+                appliesBuff: appliesBuff,
+            };
+
+            if (action.type === 'gcd') {
+                storedAction.recastTime = action.recastTime;
+                storedAction.castTime = action.castTime;
+            } else {
+                storedAction.lateWeave = action.lateWeave;
+            }
+
+            if (appliesBuff && status) {
+                storedAction.buffDetails = statusToBuffDetails(status);
+            }
+
+            saveCustomAction(storedAction);
+        }
+
         createAction(action, status);
         setStatus(undefined);
-    }
+    }, [appliesBuff, createAction, status]);
 
-    const onApplyBuffChange = (appliesBuff: boolean) => {
+    const onApplyBuffChange = useCallback((appliesBuff: boolean) => {
         setAppliesBuff(appliesBuff);
         if (!appliesBuff) {
             setStatus(undefined);
         }
-    }
+    }, []);
 
     return (
         <AbilityContainer>
@@ -86,6 +111,7 @@ export const Abilities = ({
                         createAction={onCreateAction}
                         appliesBuff={appliesBuff}
                         setAppliesBuff={onApplyBuffChange}
+                        setStatus={setStatus}
                     />
                 </AbilityOptionColumn>
                 {appliesBuff &&
@@ -94,6 +120,7 @@ export const Abilities = ({
                         <BuffSelect
                             job={job}
                             setStatus={setStatus}
+                            preloadedStatus={status}
                         />
                     </AbilityOptionColumn> 
                 }

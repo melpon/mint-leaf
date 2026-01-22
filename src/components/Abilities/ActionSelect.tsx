@@ -1,5 +1,5 @@
 import { Job } from '@/data/jobs';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Action } from '../Canvas/types';
 import { DataAction, searchForAction } from '@/app/api';
 import SearchInput from './SearchInput';
@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { ActionBuilder } from './ActionBuilder';
 import { Button } from 'antd';
 import { CustomActionInput } from './CustomActionInput'
+import { buffDetailsToStatus, getStoredCustomAction } from '@/lib/customActionsStore';
 
 const DEFAULT_RECAST_TIME = 2.5;
 const DEFAULT_CAST_TIME = 0;
@@ -31,6 +32,7 @@ interface ActionSelectProps {
     job: Job
     appliesBuff: boolean
     setAppliesBuff: (appliesBuff: boolean) => void
+    setStatus: (status: any) => void
 }
 
 export const ActionSelect: React.FC<ActionSelectProps> = ({
@@ -38,6 +40,7 @@ export const ActionSelect: React.FC<ActionSelectProps> = ({
     job,
     appliesBuff,
     setAppliesBuff,
+    setStatus,
 }) => {
     const [currentAction, setCurrentAction] = useState<DataAction | null>(null);
     const [gcdToggled, setGcdToggled] = useState<boolean>(true);
@@ -46,6 +49,37 @@ export const ActionSelect: React.FC<ActionSelectProps> = ({
     const [castTime, setCastTime] = useState<number | null>(null);
     const [prepull, setPrepull] = useState<boolean>(false);
     const [prepullTime, setPrepullTime] = useState<number | null>(-5);
+    const loadedActionIdRef = useRef<string | null>(null);
+
+    // Effect to populate fields from local storage when an action is selected
+    useEffect(() => {
+        if (!currentAction || loadedActionIdRef.current === currentAction.id) {
+            return;
+        }
+
+        const storedAction = getStoredCustomAction(currentAction.id);
+        if (storedAction) {
+            // Populate action type and times
+            setGcdToggled(storedAction.isGCD);
+            if (storedAction.isGCD) {
+                setRecastTime(storedAction.recastTime ?? null);
+                setCastTime(storedAction.castTime ?? null);
+            } else {
+                setLateWeave(storedAction.lateWeave ?? false);
+            }
+
+            // Populate buff details if they exist
+            if (storedAction.appliesBuff && storedAction.buffDetails) {
+                setAppliesBuff(true);
+                const status = buffDetailsToStatus(storedAction.buffDetails);
+                if (status) {
+                    setStatus(status);
+                }
+            }
+            
+            loadedActionIdRef.current = currentAction.id;
+        }
+    }, [currentAction, setAppliesBuff, setStatus]);
 
     const onClear = () => {
         setCurrentAction(null);
@@ -54,6 +88,7 @@ export const ActionSelect: React.FC<ActionSelectProps> = ({
         setLateWeave(false);
         setRecastTime(null);
         setCastTime(null);
+        loadedActionIdRef.current = null;
     }
 
     const onCreate = async () => {
