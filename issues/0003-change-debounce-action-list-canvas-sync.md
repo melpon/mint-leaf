@@ -2,7 +2,7 @@
 
 - Priority: Medium
 - Created: 2026-09-02
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-03
 - Model: Composer
 - Branch: feature/change-debounce-action-list-canvas-sync
 - Polished: {YYYY-MM-DD}
@@ -52,9 +52,4 @@ Action List（テキストエリア）を編集するたびに即座にパース
 
 ## 解決方法
 
-1. `Home.tsx` で Action List 由来の `applyParsedRotation` 呼び出しを debounce 化（lodash 等、既存依存に合わせる）
-2. `rotationText`（入力表示）と `rotation` / `prepullRotation`（Canvas 用）の更新タイミングを分離
-3. `isParsingRotation`（または同等）state を追加し、debounce 待ち・パース中を管理
-4. Canvas またはその近傍に更新中 UI を追加（`Home` から props で渡す）
-5. パース完了・エラー・キャンセル時に更新中 state を確実に解除
-6. 文言キーを `messages/en.ts` / `ja.ts` に追加
+0004 で編集の正を `Action[]` に移し、テキスト Action List を主経路から外した（Import / Export の副経路のみ）。キー入力のたびに `parseRotation` / Canvas 再描画が走る問題の前提が無くなったため、本 issue のデバウンスと更新中表示は実装せず closed とする。
