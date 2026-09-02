@@ -1,11 +1,12 @@
 import styled from 'styled-components'
-import { Action, Status } from '../Canvas/types'
 import TextArea from 'antd/es/input/TextArea'
 import { Job } from '@/data/jobs'
 import { useCallback, useState } from 'react'
 import { ActionSelect } from './ActionSelect'
 import { BuffSelect } from './BuffSelect'
 import { saveCustomAction, statusToBuffDetails, StoredCustomAction } from '@/lib/customActionsStore'
+import { Action, Status } from '../Canvas/types'
+import { useTranslation } from '@/context/LanguageContext'
 
 const AbilityContainer = styled.div`
     display: flex;
@@ -61,6 +62,7 @@ export const Abilities = ({
     rotationInputError,
     job,
 }: AbilitiesProps) => {
+    const { t } = useTranslation()
     const [appliesBuff, setAppliesBuff] = useState<boolean>(false);
     const [status, setStatus] = useState<Status | undefined>(undefined);
 
@@ -100,10 +102,10 @@ export const Abilities = ({
 
     return (
         <AbilityContainer>
-            <AbilityTitle>Actions</AbilityTitle>
+            <AbilityTitle>{t('abilities.sectionTitle')}</AbilityTitle>
             <AbilityOptions>
                 <AbilityOptionColumn>
-                    <span>Action Builder</span>
+                    <span>{t('abilities.actionBuilder')}</span>
                     <ActionSelect
                         job={job}
                         createAction={onCreateAction}
@@ -114,7 +116,7 @@ export const Abilities = ({
                 </AbilityOptionColumn>
                 {appliesBuff &&
                     <AbilityOptionColumn $width={350}>
-                        <span>Buff Builder</span>
+                        <span>{t('abilities.buffBuilder')}</span>
                         <BuffSelect
                             job={job}
                             setStatus={setStatus}
@@ -123,12 +125,12 @@ export const Abilities = ({
                     </AbilityOptionColumn> 
                 }
                 <AbilityOptionColumn>
-                    <span>Action List</span>
+                    <span>{t('abilities.actionList')}</span>
                     <TextArea
                         style={{ fontSize: '16px' }}
                         value={rotationText}
                         onChange={(e) => parseRotation(e.target.value)}
-                        placeholder={'Paste your rotation here...'}
+                        placeholder={t('abilities.rotationPlaceholder')}
                         autoSize={{ minRows: 7, maxRows: 7 }}
                         status={rotationInputError ? 'error' : undefined}
                     />

@@ -1,4 +1,5 @@
 import { getActionByID, getStatusByID } from '@/app/api'
+import { Locale } from '@/context/LanguageContext'
 import { Action, GCD, Status, oGCD } from '../components/Canvas/types'
 
 // Helper function to clamp numeric values to valid ranges
@@ -9,16 +10,16 @@ const clamp = (value: number, min: number, max: number): number => {
 export const rotationToText = (rotation: Action[]): string => {
     return rotation.reduce((text: string, action: Action) => {
         const textSoFar = `${text ? text + '\n' : ''}${action.prepull ? action.prepull + ' ' : ''}${action.id} ${action.type === 'gcd' ? 'GCD' : 'oGCD'} ${action.type === 'gcd' ? (action.recastTime ?? 0) + ' ' : ''}${action.type === 'gcd' ? (action.castTime ?? 0) : ''}${action.type === 'ogcd' ? (action.lateWeave ? 'lateWeave' : 'normal') : ''}`
-        
+
         if (action.statusApplied) {
             return `${textSoFar} [${action.statusApplied.id} ${action.statusApplied.applicationDelay} ${action.statusApplied.duration} ${action.statusApplied.color}]`;
         }
-        
+
         return textSoFar;
     }, '');
 }
 
-const parseActionLine = async (line: string): Promise<Action | null> => {
+const parseActionLine = async (line: string, language: Locale): Promise<Action | null> => {
     try {
         const tokens = line.split(/[ ,]+/);
 
@@ -33,7 +34,7 @@ const parseActionLine = async (line: string): Promise<Action | null> => {
         const [id, type] = tokens;
 
         // Has errors if the action doesn't exist
-        const action = await getActionByID(id);
+        const action = await getActionByID(id, language);
         const actionIconSrc = action.icon ? action.icon.toString() : '';
 
         switch (type) {
@@ -66,7 +67,7 @@ const parseActionLine = async (line: string): Promise<Action | null> => {
     }
 }
 
-const parseStatusLine = async (line: string): Promise<Status | null> => {
+const parseStatusLine = async (line: string, language: Locale): Promise<Status | null> => {
     try {
         const tokens = line.split(/[ ,]+/);
 
@@ -75,7 +76,7 @@ const parseStatusLine = async (line: string): Promise<Status | null> => {
         const [id, applicationDelay, duration, color] = tokens;
 
         // Has errors if the status doesn't exist
-        const status = await getStatusByID(id);
+        const status = await getStatusByID(id, language);
         const statusIconSrc = status.icon ? status.icon.toString() : '';
 
         return {
@@ -91,17 +92,19 @@ const parseStatusLine = async (line: string): Promise<Status | null> => {
     }
 }
 
-const parseRotationLine = async (line: string): Promise<Action | null> => {
+const parseRotationLine = async (line: string, language: Locale): Promise<Action | null> => {
     try {
+        if (line.trim() === '') return null
+
         const sections = line.split('[');
         let statusApplied: Status | null = null;
 
         if (sections.length > 1) {
             const statusSection = sections[1].split(']')[0];
-            statusApplied = await parseStatusLine(statusSection);
+            statusApplied = await parseStatusLine(statusSection, language);
         }
 
-        const action = await parseActionLine(sections[0]);
+        const action = await parseActionLine(sections[0], language);
         if (action === null) return null;
 
         if (statusApplied) {
@@ -114,8 +117,13 @@ const parseRotationLine = async (line: string): Promise<Action | null> => {
     }
 }
 
-export const textToRotation = async (text: string): Promise<Action[] | false> => {
-    return Promise.all(text.split('\n').map(parseRotationLine))
+export const textToRotation = async (text: string, language: Locale): Promise<Action[] | false> => {
+    const lines = text
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line !== '' && line !== '---')
+
+    return Promise.all(lines.map(line => parseRotationLine(line, language)))
         .then(actions => {
             if (actions.includes(null)) {
                 return false;

@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import SearchInput from './SearchInput'
 import { BuffBuilder } from './BuffBuilder'
 import { CustomBuffInput } from './CustomBuffInput'
+import { useLanguage, useTranslation } from '@/context/LanguageContext'
 
 const RotationBuilderContainer = styled.div`
     display: flex;
@@ -30,10 +31,17 @@ interface BuffSelectProps {
 }
 
 export const BuffSelect: React.FC<BuffSelectProps> = ({ job, setStatus, preloadedStatus }) => {
+    const { t } = useTranslation()
+    const { locale } = useLanguage()
     const [currentStatus, setCurrentStatus] = useState<DataStatus | null>(null);
     const [applicationDelay, setApplicationDelay] = useState<number | null>(0);
     const [duration, setDuration] = useState<number | null>(20);
     const [color, setColor] = useState<string>();
+
+    const searchStatuses = useCallback(
+        (query: string, language: typeof locale) => searchForStatus(query, language),
+        [],
+    )
     
     // Effect to populate fields from preloaded status
     useEffect(() => {
@@ -58,7 +66,7 @@ export const BuffSelect: React.FC<BuffSelectProps> = ({ job, setStatus, preloade
 
         const buff: Status = {
             id: currentStatus.id,
-            name: currentStatus.name ?? 'Unknown',
+            name: currentStatus.name ?? t('buffBuilder.unknown'),
             imageSrc: currentStatus.icon.toString(),
             color: color ?? '#000000',
             duration: duration ?? 0,
@@ -66,7 +74,7 @@ export const BuffSelect: React.FC<BuffSelectProps> = ({ job, setStatus, preloade
         };
 
         setStatus(buff);
-    }, [applicationDelay, color, currentStatus, duration, setStatus]);
+    }, [applicationDelay, color, currentStatus, duration, setStatus, t]);
 
     if (!currentStatus) {
         return (
@@ -75,11 +83,12 @@ export const BuffSelect: React.FC<BuffSelectProps> = ({ job, setStatus, preloade
                     <SearchInput
                         job={job}
                         onSelect={setCurrentStatus}
-                        search={searchForStatus}
-                        placeholder="Search for a status..."
+                        search={searchStatuses}
+                        placeholder={t('abilities.searchStatus')}
+                        language={locale}
                     />
                 </SearchContainer>
-                <div>- or -</div>
+                <div>{t('abilities.orDivider')}</div>
                 <CustomBuffInput onCreate={setCurrentStatus} />
             </RotationBuilderContainer>
         );

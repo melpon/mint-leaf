@@ -1,0 +1,37 @@
+"use client"
+
+import { LanguageProvider } from '@/context/LanguageContext'
+import { ConfigProvider } from 'antd'
+import enUS from 'antd/locale/en_US'
+import jaJP from 'antd/locale/ja_JP'
+import { SessionProvider } from 'next-auth/react'
+import { useLanguage } from '@/context/LanguageContext'
+
+const AntdLocaleProvider = ({ children }: { children: React.ReactNode }) => {
+    const { locale } = useLanguage()
+
+    return (
+        <ConfigProvider
+            locale={locale === 'ja' ? jaJP : enUS}
+            theme={{
+                token: {
+                    colorPrimary: '#aaf0d1',
+                },
+            }}
+        >
+            {children}
+        </ConfigProvider>
+    )
+}
+
+export const Providers = ({ children }: { children: React.ReactNode }) => {
+    return (
+        <SessionProvider>
+            <LanguageProvider>
+                <AntdLocaleProvider>
+                    {children}
+                </AntdLocaleProvider>
+            </LanguageProvider>
+        </SessionProvider>
+    )
+}

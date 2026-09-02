@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Canvas } from './Canvas/Canvas'
 import styled from 'styled-components'
 import { Action, Status } from './Canvas/types'
@@ -10,7 +10,10 @@ import { Header } from './Header/Header'
 import { Abilities } from './Abilities/Abilities'
 import { Title } from './Title/Title'
 import { Footer } from './Footer/Footer'
-import { ConfigProvider } from 'antd'
+import { useLanguage } from '@/context/LanguageContext'
+import { en } from '@/messages/en'
+import { ja } from '@/messages/ja'
+import { getJobName } from '@/lib/jobs'
 
 const Container = styled.div`
   display: flex;
@@ -24,18 +27,24 @@ interface HomeProps {
 }
 
 export const Home = ({ discordAuth }: HomeProps) => {
+    const { locale } = useLanguage()
     const [rotation, setRotation] = useState<Action[]>([])
     const [rotationText, setRotationText] = useState('')
     const [rotationInputError, setRotationInputError] = useState<boolean>(false)
     const [prepullRotation, setPrepullRotation] = useState<Action[]>([])
     const [screenWidth, setScreenWidth] = useState(0)
     const [job, setJob] = useState<Job>(jobs['DRK'])
-    const [rotationTitle, setRotationTitle] = useState<string>('Title')
-    const [expansion, setExpansion] = useState<string>('Dawntrail')
+    const [rotationTitle, setRotationTitle] = useState<string>(en.defaults.rotationTitle)
+    const [expansion, setExpansion] = useState<string>(en.defaults.expansion)
     const [patch, setPatch] = useState<string>('7.4')
     const [level, setLevel] = useState<number>(100)
     const [useBalanceLogo, setUseBalanceLogo] = useState<boolean>(false)
     const canvasRef = useRef<HTMLCanvasElement>(null)
+    const rotationTextRef = useRef(rotationText)
+
+    useEffect(() => {
+        rotationTextRef.current = rotationText
+    }, [rotationText])
 
     useLayoutEffect(() => {
         const onResize = () => {
@@ -47,6 +56,53 @@ export const Home = ({ discordAuth }: HomeProps) => {
             window.removeEventListener("resize", onResize)
         }
     }, [])
+
+    useEffect(() => {
+        setRotationTitle((current) => {
+            if (current === en.defaults.rotationTitle || current === ja.defaults.rotationTitle) {
+                return locale === 'ja' ? ja.defaults.rotationTitle : en.defaults.rotationTitle
+            }
+            return current
+        })
+        setExpansion((current) => {
+            if (current === en.defaults.expansion || current === ja.defaults.expansion) {
+                return locale === 'ja' ? ja.defaults.expansion : en.defaults.expansion
+            }
+            return current
+        })
+    }, [locale])
+
+    const applyParsedRotation = useCallback(async (text: string, language: typeof locale) => {
+        if (text.trim() === "") {
+            setRotation([])
+            setPrepullRotation([])
+            setRotationInputError(false)
+            return
+        }
+
+        try {
+            const parsedRotation = await textToRotation(text.trim(), language)
+
+            if (!parsedRotation) {
+                setRotationInputError(true)
+                return
+            }
+
+            setRotation(parsedRotation.filter(action => !action.prepull))
+            setPrepullRotation(parsedRotation.filter(action => action.prepull).sort((a, b) =>
+                (a.prepull ?? 0) - (b.prepull ?? 0)
+            ))
+            setRotationInputError(false)
+        } catch (e) {
+            setRotationInputError(true)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (rotationTextRef.current) {
+            applyParsedRotation(rotationTextRef.current, locale)
+        }
+    }, [locale, applyParsedRotation])
 
     const addAction = async (action: Action, status?: Status) => {
         if (status) {
@@ -68,30 +124,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
 
     const parseRotation = async (text: string) => {
         setRotationText(text)
-
-        if (text.trim() === "") {
-            setRotation([])
-            setPrepullRotation([])
-            setRotationInputError(false)
-            return
-        }
-
-        try {
-            const parsedRotation = await textToRotation(text.trim())
-
-            if (!parsedRotation) {
-                setRotationInputError(true)
-                return
-            }
-
-            setRotation(parsedRotation.filter(action => !action.prepull))
-            setPrepullRotation(parsedRotation.filter(action => action.prepull).sort((a, b) =>
-                (a.prepull ?? 0) - (b.prepull ?? 0)
-            ))
-            setRotationInputError(false)
-        } catch (e) {
-            setRotationInputError(true)
-        }
+        await applyParsedRotation(text, locale)
     }
 
     const exportInfographic = () => {
@@ -99,17 +132,12 @@ export const Home = ({ discordAuth }: HomeProps) => {
         if (!canvas) return
 
         const link = document.createElement('a')
-        link.download = `${job?.name} ${rotationTitle}.png`
+        link.download = `${getJobName(job, locale)} ${rotationTitle}.png`
         link.href = canvas.toDataURL('image/png')
         link.click()
     }
 
     return (
-        <ConfigProvider theme={{
-            token: {
-                colorPrimary: '#aaf0d1',
-            }
-        }}>
         <Container>
             <Title discordAuth={discordAuth} />
             <Header
@@ -135,7 +163,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
                 screenWidth={screenWidth}
                 prepullRotation={prepullRotation}
                 rotation={rotation}
-                jobName={job?.name}
+                jobName={getJobName(job, locale)}
                 jobIcon={job?.icon}
                 title={rotationTitle}
                 expansion={expansion}
@@ -150,6 +178,5 @@ export const Home = ({ discordAuth }: HomeProps) => {
                 setUseBalanceLogo={setUseBalanceLogo}
             />
         </Container>
-        </ConfigProvider>
     )
 }

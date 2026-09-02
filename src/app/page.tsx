@@ -1,13 +1,13 @@
 import { DiscordAuth } from '@/components/Discord/DiscordAuth'
 import { Home } from '@/components/Home'
-import { SessionProvider } from 'next-auth/react'
+import { Providers } from '@/components/Providers'
 
 export default function Index() {
     const discordAuth = <DiscordAuth />
 
     return (
-        <SessionProvider>
+        <Providers>
             <Home discordAuth={discordAuth} />
-        </SessionProvider>
+        </Providers>
     )
 }

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { debounce } from 'lodash'
 import Select, { OptionProps } from 'react-select'
 import { DataAction } from '@/app/api'
@@ -6,6 +6,7 @@ import Image from 'next/image'
 import styled from 'styled-components'
 import { Job } from '@/data/jobs'
 import { DataStatus } from '@/app/api/xivapi/types'
+import { Locale } from '@/context/LanguageContext'
 
 const LabelContainer = styled.div`
     display: flex;
@@ -48,8 +49,9 @@ const ActionOption = <SearchType extends DataAction | DataStatus>({
 interface SearchInputProps<SearchType extends DataAction | DataStatus> {
     job: Job
     onSelect: (option: SearchType) => void
-    search: (query: string, job: Job) => Promise<SearchType[]>
+    search: (query: string, language: Locale) => Promise<SearchType[]>
     placeholder?: string
+    language: Locale
 }
 
 const SearchInput = <SearchType extends DataAction | DataStatus>({
@@ -57,20 +59,30 @@ const SearchInput = <SearchType extends DataAction | DataStatus>({
     onSelect,
     search,
     placeholder,
+    language,
 }: SearchInputProps<SearchType>) => {
     const [searchResults, setSearchResults] = useState<SearchType[]>([])
+    const [inputValue, setInputValue] = useState('')
 
     const handleActionSearch = useMemo(
         () =>
-            debounce(async (query) => {
-                const results = await search(query, job)
+            debounce(async (query: string, searchLanguage: Locale) => {
+                const results = await search(query, searchLanguage)
                 setSearchResults(results)
             }, 500),
-        [job, search]
+        [search]
     )
 
+    useEffect(() => {
+        if (inputValue) {
+            handleActionSearch(inputValue, language)
+        }
+    }, [language, inputValue, handleActionSearch])
+
     const handleInputChange = (value: string) => {
-        handleActionSearch(value)
+        setInputValue(value)
+        handleActionSearch(value, language)
+        return value
     }
 
     return (
@@ -78,9 +90,12 @@ const SearchInput = <SearchType extends DataAction | DataStatus>({
             placeholder={placeholder}
             options={searchResults}
             value={null}
+            inputValue={inputValue}
             onInputChange={handleInputChange}
             onChange={(action) => action !== null && onSelect(action)}
             getOptionLabel={(option) => option.name || ''}
+            getOptionValue={(option) => option.id}
+            filterOption={() => true}
             components={{ Option: ActionOption }}
             isClearable
             isMulti={false}
