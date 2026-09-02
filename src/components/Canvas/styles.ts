@@ -62,6 +62,7 @@ export const styles = {
         weaveslotEndAdjustLeft: 4 * scale,
         prepullGcdPadding: 16 * scale,
         prepullOgcdPadding: 40 * scale,
+        rotationRowSpacing: 1300,
     },
     fonts: {
         pullLabel: `${32 * scale}px ${roboto.style.fontFamily}`,

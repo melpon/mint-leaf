@@ -67,6 +67,10 @@ export interface CanvasBuffLine {
     icon: HTMLImageElement | null;
     startX: number;
     endX: number;
+    depth?: number;
+    showLabel?: boolean;
+    showStartCap?: boolean;
+    showEndCap?: boolean;
 }
 
 export interface TimelinePoint {

@@ -1,19 +1,24 @@
 "use client"
 
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from './Canvas/Canvas'
 import styled from 'styled-components'
 import { Action, Status } from './Canvas/types'
+import { calculateIconPositions } from './Canvas/calculateIconPositions'
+import { styles } from './Canvas/styles'
 import { rotationToText, textToRotation } from '../lib/parseRotation'
 import { Job, jobs } from '../data/jobs'
 import { Header } from './Header/Header'
 import { Abilities } from './Abilities/Abilities'
 import { Title } from './Title/Title'
 import { Footer } from './Footer/Footer'
+import { CanvasWidthBar } from './Canvas/CanvasWidthBar'
 import { useLanguage } from '@/context/LanguageContext'
 import { en } from '@/messages/en'
 import { ja } from '@/messages/ja'
 import { getJobName } from '@/lib/jobs'
+
+const { positions } = styles
 
 const Container = styled.div`
   display: flex;
@@ -21,6 +26,18 @@ const Container = styled.div`
   align-items: center;
   height: 100vh;
 `
+
+/** Natural canvas width: left padding + content + right padding (no widthInitial floor). */
+const calculateTotalWidth = (prepullRotation: Action[], rotation: Action[]): number => {
+    const prepullWidth = calculateIconPositions(prepullRotation).width
+    const rotationWidth = calculateIconPositions(rotation).width
+    const contentWidth = rotationWidth + (
+        prepullRotation.length > 0
+            ? prepullWidth + (rotation.length > 0 ? positions.prepullPadding * 2 : 0)
+            : 0
+    )
+    return contentWidth + positions.rotationPadding * 2
+}
 
 interface HomeProps {
     discordAuth: JSX.Element
@@ -32,6 +49,8 @@ export const Home = ({ discordAuth }: HomeProps) => {
     const [rotationText, setRotationText] = useState('')
     const [rotationInputError, setRotationInputError] = useState<boolean>(false)
     const [prepullRotation, setPrepullRotation] = useState<Action[]>([])
+    const [wrapWidth, setWrapWidth] = useState<number | null>(null)
+    const [rowSpacing, setRowSpacing] = useState<number | null>(null)
     const [screenWidth, setScreenWidth] = useState(0)
     const [job, setJob] = useState<Job>(jobs['DRK'])
     const [rotationTitle, setRotationTitle] = useState<string>(en.defaults.rotationTitle)
@@ -71,6 +90,11 @@ export const Home = ({ discordAuth }: HomeProps) => {
             return current
         })
     }, [locale])
+
+    const totalWidth = useMemo(
+        () => calculateTotalWidth(prepullRotation, rotation),
+        [prepullRotation, rotation],
+    )
 
     const applyParsedRotation = useCallback(async (text: string, language: typeof locale) => {
         if (text.trim() === "") {
@@ -159,10 +183,19 @@ export const Home = ({ discordAuth }: HomeProps) => {
                 rotationInputError={rotationInputError}
                 job={job}
             />
+            <CanvasWidthBar
+                totalWidth={totalWidth}
+                wrapWidth={wrapWidth}
+                setWrapWidth={setWrapWidth}
+                rowSpacing={rowSpacing}
+                setRowSpacing={setRowSpacing}
+            />
             <Canvas
                 screenWidth={screenWidth}
                 prepullRotation={prepullRotation}
                 rotation={rotation}
+                wrapWidth={wrapWidth}
+                rowSpacing={rowSpacing}
                 jobName={getJobName(job, locale)}
                 jobIcon={job?.icon}
                 title={rotationTitle}

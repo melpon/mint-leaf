@@ -1,3 +1,6 @@
+const canDrawImage = (image: HTMLImageElement): boolean =>
+    image.complete && image.naturalWidth > 0 && image.naturalHeight > 0
+
 export const drawImageFromSource = (
     context: CanvasRenderingContext2D,
     imageSrc: string,
@@ -9,6 +12,7 @@ export const drawImageFromSource = (
     const image = new Image()
     image.src = imageSrc
     image.onload = () => {
+        if (!canDrawImage(image)) return
         context.drawImage(image, x, y, width, height)
     }
 }
@@ -23,11 +27,14 @@ export const drawImageFromHTML = (
 ) => {
     if (!image) return
 
-    if (image.complete) {
+    const draw = () => {
+        if (!canDrawImage(image)) return
         context.drawImage(image, x, y, width, height)
+    }
+
+    if (canDrawImage(image)) {
+        draw()
     } else {
-        image.onload = () => {
-            context.drawImage(image, x, y, width, height)
-        }
+        image.onload = draw
     }
 }

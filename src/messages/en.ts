@@ -75,6 +75,9 @@ export const en = {
         pull: 'Pull',
         patch: 'Patch',
         levelPrefix: 'LV.',
+        totalWidth: 'Total width',
+        wrapWidth: 'Wrap width',
+        rowSpacing: 'Row spacing',
     },
     discord: {
         mentorSignIn: 'mentor sign in',

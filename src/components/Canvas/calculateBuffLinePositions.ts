@@ -145,3 +145,33 @@ export const calculateBuffLinePositions = (
 
     return buffLines
 }
+
+/** Map globally-calculated buff lines into one row viewport [globalStart, globalEnd). */
+export const sliceBuffLinesForRow = (
+    buffLines: CanvasBuffLine[],
+    globalStart: number,
+    globalEnd: number,
+): CanvasBuffLine[] => {
+    const sliced: CanvasBuffLine[] = []
+
+    buffLines.forEach(line => {
+        if (line.endX <= globalStart || line.startX >= globalEnd) {
+            return
+        }
+
+        const startsInRow = line.startX >= globalStart
+        const endsInRow = line.endX <= globalEnd
+
+        sliced.push({
+            ...line,
+            startX: Math.max(line.startX, globalStart) - globalStart,
+            endX: Math.min(line.endX, globalEnd) - globalStart,
+            showLabel: startsInRow,
+            showStartCap: startsInRow,
+            showEndCap: endsInRow,
+            icon: startsInRow ? line.icon : null,
+        })
+    })
+
+    return sliced
+}

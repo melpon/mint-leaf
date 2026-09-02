@@ -2,7 +2,9 @@ import { getActionByID, getStatusByID } from '@/app/api'
 import { Locale } from '@/context/LanguageContext'
 import { Action, GCD, Status, oGCD } from '../components/Canvas/types'
 
-// Helper function to clamp numeric values to valid ranges
+/** Legacy / ignored meta lines — not actions. */
+const IGNORED_META_LINE = /^(---|width\s+\d+)\s*$/i
+
 const clamp = (value: number, min: number, max: number): number => {
     return Math.max(min, Math.min(max, value));
 }
@@ -33,7 +35,6 @@ const parseActionLine = async (line: string, language: Locale): Promise<Action |
 
         const [id, type] = tokens;
 
-        // Has errors if the action doesn't exist
         const action = await getActionByID(id, language);
         const actionIconSrc = action.icon ? action.icon.toString() : '';
 
@@ -75,7 +76,6 @@ const parseStatusLine = async (line: string, language: Locale): Promise<Status |
 
         const [id, applicationDelay, duration, color] = tokens;
 
-        // Has errors if the status doesn't exist
         const status = await getStatusByID(id, language);
         const statusIconSrc = status.icon ? status.icon.toString() : '';
 
@@ -121,14 +121,16 @@ export const textToRotation = async (text: string, language: Locale): Promise<Ac
     const lines = text
         .split(/\r?\n/)
         .map(line => line.trim())
-        .filter(line => line !== '' && line !== '---')
+        .filter(line => line !== '' && !IGNORED_META_LINE.test(line))
 
-    return Promise.all(lines.map(line => parseRotationLine(line, language)))
-        .then(actions => {
-            if (actions.includes(null)) {
-                return false;
-            }
+    if (lines.length === 0) {
+        return []
+    }
 
-            return actions as Action[];
-        })
+    const actions = await Promise.all(lines.map(line => parseRotationLine(line, language)))
+    if (actions.includes(null)) {
+        return false
+    }
+
+    return actions as Action[]
 }

@@ -20,12 +20,12 @@ const drawBuffLine = (
     const labelWidth = context.measureText(buff.name).width
     const endpoint = Math.min(line.endX, rotationEnd)
     const buffLabelWidth = positions.buffLineTextLeft + positions.buffLineIconWidth + labelWidth + 2 * positions.buffLineTextPadding
-    const finalBuffLabelWidth = line.startX + buffLabelWidth < endpoint
+    const wantsLabel = line.showLabel !== false
+    const finalBuffLabelWidth = wantsLabel && line.startX + buffLabelWidth < endpoint
         ? buffLabelWidth
         : 0
 
     if (finalBuffLabelWidth > 0) {
-        // Draw buff icon
         drawImageFromHTML(
             context,
             line.icon,
@@ -35,7 +35,6 @@ const drawBuffLine = (
             positions.buffLineIconHeight,
         )
 
-        // Draw buff label
         context.fillText(
             buff.name,
             line.startX + positions.buffLineTextLeft + positions.buffLineIconWidth + positions.buffLineTextPadding,
@@ -46,7 +45,6 @@ const drawBuffLine = (
     context.strokeStyle = buff.color
     context.lineWidth = 2 * scale
 
-    // Draw horizontal line
     if (finalBuffLabelWidth > 0) {
         context.beginPath()
         context.moveTo(line.startX, y)
@@ -63,43 +61,40 @@ const drawBuffLine = (
         context.stroke()
     }
 
-    // Draw vertical start line
-    context.beginPath()
-    context.moveTo(line.startX, y - (depth + 1) * positions.buffLineHeight)
-    context.lineTo(line.startX, y)
-    context.stroke()
+    if (line.showStartCap !== false) {
+        context.beginPath()
+        context.moveTo(line.startX, y - (depth + 1) * positions.buffLineHeight)
+        context.lineTo(line.startX, y)
+        context.stroke()
+    }
 
-    if (line.endX > rotationEnd) {
-        // Draw arrow indicating open-ended buff
+    if (line.showEndCap !== false && line.endX <= rotationEnd) {
+        context.beginPath()
+        context.moveTo(line.endX, y)
+        context.lineTo(line.endX, y - positions.buffLineHeight / 3)
+        context.stroke()
+    } else if (line.showEndCap === false) {
+        // Continues into next viewport — no end tick, no arrow.
+    } else if (line.endX > rotationEnd) {
         context.beginPath()
         context.moveTo(endpoint + positions.buffLineArrowPadding, y - positions.buffLineArrowLength / 2)
         context.lineTo(endpoint + positions.buffLineArrowPadding + positions.buffLineArrowLength, y)
         context.lineTo(endpoint + positions.buffLineArrowPadding, y + positions.buffLineArrowLength / 2)
         context.strokeStyle = buff.color
         context.stroke()
-    } else {
-        context.beginPath()
-        context.moveTo(line.endX, y)
-        context.lineTo(line.endX, y - positions.buffLineHeight / 3)
-        context.stroke()
     }
 }
 
-// Returns the height of the buff lines
-export const drawBuffLines = (
-    context: CanvasRenderingContext2D,
-    buffs: CanvasBuffLine[],
-    midLine: number,
-    rotationEnd: number,
-): number => {
-    const bins: Array<{ buffs: CanvasBuffLine[], maxEndpoint: number }> = []
-    const buffsSortedByEndpoint = buffs.sort((a, b) => (a.endX) - (b.endX))
+export const assignBuffLineDepths = (buffs: CanvasBuffLine[]): number => {
+    if (buffs.length === 0) return 0
 
-    // Sort buff lines into bins (one for each height) based on their start and end points
+    const bins: Array<{ buffs: CanvasBuffLine[], maxEndpoint: number }> = []
+    const buffsSortedByEndpoint = [...buffs].sort((a, b) => a.endX - b.endX)
+
     buffsSortedByEndpoint.forEach(buff => {
         const bin = bins
             .sort((a, b) => b.buffs[0].startX - a.buffs[0].startX)
-            .find(bin => bin.maxEndpoint < buff.startX)
+            .find(candidate => candidate.maxEndpoint < buff.startX)
         if (bin) {
             bin.buffs.push(buff)
             bin.maxEndpoint = buff.endX
@@ -108,14 +103,34 @@ export const drawBuffLines = (
         }
     })
 
-    // Draw buff lines sorted by their start point
     bins
         .sort((a, b) => b.buffs[0].startX - a.buffs[0].startX)
         .forEach((bin, index) => {
             bin.buffs.forEach(buff => {
-                drawBuffLine(context, buff, midLine + index * positions.buffLineHeight, index, rotationEnd)
+                buff.depth = index
             })
         })
 
     return bins.length * positions.buffLineHeight
+}
+
+export const drawBuffLines = (
+    context: CanvasRenderingContext2D,
+    buffs: CanvasBuffLine[],
+    midLine: number,
+    rotationEnd: number,
+): number => {
+    if (buffs.length === 0) return 0
+
+    const hasAssignedDepths = buffs.every(buff => buff.depth !== undefined)
+    const buffLineStackHeight = hasAssignedDepths
+        ? (Math.max(...buffs.map(buff => buff.depth ?? 0)) + 1) * positions.buffLineHeight
+        : assignBuffLineDepths(buffs)
+
+    buffs.forEach(buff => {
+        const depth = buff.depth ?? 0
+        drawBuffLine(context, buff, midLine + depth * positions.buffLineHeight, depth, rotationEnd)
+    })
+
+    return buffLineStackHeight
 }
