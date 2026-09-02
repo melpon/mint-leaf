@@ -2,7 +2,7 @@
 
 - Priority: Medium
 - Created: 2026-09-02
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-03
 - Model: Composer
 - Branch: feature/add-job-action-list-from-xivapi
 - Polished: {YYYY-MM-DD}
@@ -103,10 +103,10 @@ Action Builder でスキルを 1 個ずつ XIVAPI 検索しなくても、選択
 
 ## 解決方法
 
-1. `src/app/api/xivapi/` にジョブ別 Action 一覧取得関数を追加（`ClassJobCategory` + `IsPvP=false` + `IsPlayerAction=true`、cursor ページング、後処理フィルタ）
-2. `src/lib/` に job action キャッシュ用 store を追加（get / set / invalidate / TTL 判定）
-3. ジョブ略称 ↔ `ClassJobCategory` フラグ名の対応を `jobs.ts` または専用マップで定義（キー `DRK` 等をそのまま使える想定）
-4. Action Builder 用の一覧 UI コンポーネントを追加（アイコン + 名前、クリックで `DataAction` を `setCurrentAction`）
-5. `ActionSelect` に一覧・再読み込み・ローディング / エラー状態を組み込む
-6. i18n（再読み込みボタン、読み込み中、エラー、空一覧など）を `en.ts` / `ja.ts` に追加
-7. XIVAPI 呼び出し回数が増えないよう、ジョブ × ロケール単位で取得を 1 回にまとめ、以降はキャッシュのみ参照する
+1. `src/app/api/xivapi/` に `xivapiSearchAll` と `fetchJobActions` を追加し、`ClassJobCategory` + `IsPvP=false` + `IsPlayerAction=true` で cursor ページング全件取得するようにした
+2. `src/lib/jobActionsStore.ts` にジョブ略称 × ロケール単位の localStorage キャッシュ（TTL 7 日）を追加した。期限切れは stale 表示とし、再取得は手動ボタンのみとした
+3. `getJobAbbreviation` で `Job` から `jobs` Record の略称キーを逆引きし、`ClassJobCategory.{略称}` に使うようにした
+4. `JobActionList` を追加し、アイコン + 名前の一覧・テキストフィルタ・再取得・loading / error を実装した
+5. `ActionSelect` に一覧を組み込み、選択後は既存の `ActionBuilder` フローに合流させた（名前検索・カスタム入力は残した）
+6. `en.ts` / `ja.ts` に再取得・読み込み中・エラー・空一覧・フィルタ用の文言を追加した
+7. BLM（迅速魔等）・DRK（ランパート等）でロールアクションを含むことと、`npm run build` の成功を確認した
