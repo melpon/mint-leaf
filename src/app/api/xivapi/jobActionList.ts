@@ -4,7 +4,7 @@ import { Locale } from '@/context/LanguageContext'
 import { DataAction } from './types'
 import {
     buildJobActionListQuery,
-    convertBetaIconPath,
+    convertIconPath,
     JOB_ACTION_LIST_FIELDS,
     PLACEHOLDER_ICON_ID,
     xivapiSearchAll,
@@ -59,7 +59,7 @@ export const fetchJobActions = async (
         }
 
         const iconPath = fields.Icon?.path_hr1
-        const icon = iconPath ? convertBetaIconPath(iconPath) : null
+        const icon = iconPath ? convertIconPath(iconPath) : null
         if (!icon || icon.toString() === defaultIcon) {
             continue
         }

@@ -11,7 +11,7 @@ const JOB_ACTION_LIST_PAGE_LIMIT = 100
 /** ジョブ別一覧で取得するフィールド */
 const JOB_ACTION_LIST_FIELDS = 'Name,Icon,ClassJobLevel'
 
-type XivapiSheet = 'Action' | 'Status' | 'Item'
+type XivapiSheet = 'Action' | 'Status' | 'Item' | 'ClassJob'
 
 interface XivapiSearchResponse {
     fields: any
@@ -27,8 +27,15 @@ interface XivapiSearchPage {
     schema?: string
 }
 
+/**
+ * XIVAPI 正式 v2 クライアント。
+ * version / schema はピン留めしない（常に最新）。
+ * 新ジョブ・新コンテンツへの追従を優先するため。
+ * ピン留めが必要な場合は Ensuring Stability ガイドを参照すること。
+ * https://v2.xivapi.com/docs/guides/pinning/
+ */
 const xivapi = ky.create({
-    prefixUrl: 'https://beta.xivapi.com/api/1',
+    prefixUrl: 'https://v2.xivapi.com/api',
 })
 
 export const xivapiSearch = async (
@@ -113,7 +120,8 @@ export const getObject = async (
         searchParams: language === 'ja' ? { language: 'ja' } : {},
     }).json()
 
-export const convertBetaIconPath = (path: string): URL => {
+/** ゲームテクスチャパスを xivapi.com の PNG CDN URL に変換する */
+export const convertIconPath = (path: string): URL => {
     const [_, pathWithoutSuffix] = path.split('ui/icon/')
     const [pathWithoutFileType] = pathWithoutSuffix.split('.tex')
     const normalizedPath = pathWithoutFileType.replace(/_hr1$/, '')

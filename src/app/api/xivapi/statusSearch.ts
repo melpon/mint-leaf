@@ -2,7 +2,7 @@
 
 import { Locale } from '@/context/LanguageContext'
 import { DataStatus } from './types'
-import { buildStatusSearchQuery, xivapiSearch, convertBetaIconPath, getObject } from './xivapi'
+import { buildStatusSearchQuery, xivapiSearch, convertIconPath, getObject } from './xivapi'
 
 const defaultIcon = 'https://xivapi.com/i/000000/000405_hr1.png'
 
@@ -15,7 +15,7 @@ export const searchForStatus = async (nameQuery: string, language: Locale): Prom
     return results.map(({ row_id, fields }) => ({
         id: row_id.toString(),
         name: fields.Name,
-        icon: fields.Icon ? convertBetaIconPath(fields.Icon.path_hr1) : null,
+        icon: fields.Icon ? convertIconPath(fields.Icon.path_hr1) : null,
     })).filter(({ icon }) =>
         icon && icon.toString() !== defaultIcon
     );
@@ -35,7 +35,7 @@ export const getStatusByID = async (id: string, language: Locale): Promise<DataS
         }
 
         const { fields } = await getObject('Status', parseInt(id), language);
-        const icon = fields.Icon ? convertBetaIconPath(fields.Icon.path_hr1) : null;
+        const icon = fields.Icon ? convertIconPath(fields.Icon.path_hr1) : null;
         const name = fields.Name;
 
         return { id, name, icon };

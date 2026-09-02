@@ -2,7 +2,7 @@
 
 import { Locale } from '@/context/LanguageContext'
 import { DataAction } from './types'
-import { buildActionSearchQuery, convertBetaIconPath, getObject, xivapiSearch } from './xivapi'
+import { buildActionSearchQuery, convertIconPath, getObject, xivapiSearch } from './xivapi'
 
 const defaultIcon = 'https://xivapi.com/i/000000/000405_hr1.png'
 
@@ -15,7 +15,7 @@ export const searchForAction = async (nameQuery: string, language: Locale): Prom
     return results.map(({ row_id, fields, sheet }) => ({
         id: (sheet === 'Item' ? 'item-' : '') + row_id.toString(),
         name: fields.Name,
-        icon: fields.Icon ? convertBetaIconPath(fields.Icon.path_hr1) : null,
+        icon: fields.Icon ? convertIconPath(fields.Icon.path_hr1) : null,
     })).filter(({ icon }) =>
         icon && icon.toString() !== defaultIcon
     );
@@ -38,7 +38,7 @@ export const getActionByID = async (id: string, language: Locale): Promise<DataA
         const parsedId = parseInt(id.replace('item-', ''))
 
         const { fields } = await getObject(isItem ? 'Item' : 'Action', parsedId, language);
-        const icon = fields.Icon ? convertBetaIconPath(fields.Icon.path_hr1) : null;
+        const icon = fields.Icon ? convertIconPath(fields.Icon.path_hr1) : null;
         const name = fields.Name;
 
         return { id, name, icon };
