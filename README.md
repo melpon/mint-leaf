@@ -1,4 +1,4 @@
-<p align="center"><a href="https://mint-leaf.thebalanceffxiv.com/"><img src="https://raw.githubusercontent.com/hintxiv/mint-leaf/main/public/favicon.ico" height="150" width="130" alt="logo"></a></p>
+<p align="center"><img src="https://raw.githubusercontent.com/hintxiv/mint-leaf/main/public/favicon.ico" height="150" width="130" alt="logo"></p>
 
 <h1 align="center">Mint Leaf</h1>
 

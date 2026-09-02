@@ -6,8 +6,6 @@ export const en = {
     title: {
         subtitle: 'FFXIV Rotation Builder',
         logoAlt: 'Logo',
-        balanceDiscordAlt: 'The Balance Discord',
-        balanceLink: 'The Balance FFXIV',
         language: 'Language',
     },
     header: {
@@ -68,8 +66,6 @@ export const en = {
     },
     footer: {
         export: 'Export to PNG',
-        addBalanceStamp: 'Add Balance Stamp',
-        removeBalanceStamp: 'Remove Balance Stamp',
     },
     canvas: {
         pull: 'Pull',
@@ -78,10 +74,6 @@ export const en = {
         totalWidth: 'Total width',
         wrapWidth: 'Wrap width',
         rowSpacing: 'Row spacing',
-    },
-    discord: {
-        mentorSignIn: 'mentor sign in',
-        avatarAlt: 'Discord Avatar',
     },
     abilityIcon: {
         frameAlt: 'icon frame',
