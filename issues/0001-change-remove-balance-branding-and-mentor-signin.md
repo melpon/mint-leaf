@@ -2,7 +2,7 @@
 
 - Priority: Medium
 - Created: 2026-09-02
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-03
 - Model: Composer
 - Branch: feature/change-remove-balance-branding-and-mentor-signin
 - Polished: {YYYY-MM-DD}
@@ -43,11 +43,12 @@ Mint Leaf から The Balance 向けのブランディング（ロゴ・リンク
 
 ## 解決方法
 
-1. Title から `DiscordAuthContainer` と `BalanceLink`（および関連 styled）を削除する
-2. `page.tsx` / `Home` / `Footer` / `Canvas` から `discordAuth`・`useBalanceLogo`・`drawBalanceLogo` を除去する
-3. `src/components/Discord/`・`src/auth.ts`・`src/app/api/auth/`・`src/types/next-auth.d.ts`・`src/middleware.ts`・`SessionProvider` を削除する
-4. `package.json` から `next-auth` を外し、lockfile を更新する
-5. `public/Balance_*.png` と Canvas `styles.ts` の balance* 寸法定数を削除する
-6. `en.ts` / `ja.ts` から balance / discord / BalanceStamp 関連キーを削除する
-7. `.env.local` 例やドキュメントから `DISCORD_*` / `AUTH_SECRET` の説明を整理する（実値は issue・コミットに含めない）
-8. README の The Balance ホスト参照を見直す
+1. Title から `DiscordAuthContainer` と `BalanceLink`（および関連 styled）を削除した
+2. `page.tsx` / `Home` / `Footer` / `Canvas` から `discordAuth`・`useBalanceLogo`・`drawBalanceLogo` を除去した
+3. `src/components/Discord/`・`src/auth.ts`・`src/app/api/auth/`・`src/types/next-auth.d.ts`・`src/middleware.ts`・`SessionProvider` を削除した
+4. `package.json` から `next-auth` を外し、`yarn.lock` / `package-lock.json` を更新した
+5. `public/Balance_*.png` と Canvas `styles.ts` の balance* 寸法定数、およびスタンプ専用の `fonts.url` / `colors.url` を削除した
+6. `en.ts` / `ja.ts` から balance / discord / BalanceStamp 関連キーを削除した
+7. 追跡されていた空の `.env.local`（旧 `DISCORD_*` / `AUTH_SECRET`）をリポジトリから削除した
+8. README の The Balance ホストリンクを外し、ロゴ画像のみ残した
+9. production build と `next start` でトップページが認証なしで表示されることを確認した
