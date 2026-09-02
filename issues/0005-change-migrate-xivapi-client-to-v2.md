@@ -2,7 +2,7 @@
 
 - Priority: Medium
 - Created: 2026-09-03
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-03
 - Model: Composer
 - Branch: feature/change-migrate-xivapi-client-to-v2
 - Polished: {YYYY-MM-DD}
@@ -58,8 +58,8 @@
 
 ## 解決方法
 
-1. [Migrating to V2](https://v2.xivapi.com/docs/migrate/) と Sheets / Search / Pinning ガイドを読み、現行 `beta.xivapi.com/api/1` との差分を洗い出す
-2. `src/app/api/xivapi/xivapi.ts` の `prefixUrl` と search / sheet 呼び出しを v2 に合わせる
-3. `actionSearch.ts` / `statusSearch.ts` / `jobActionList.ts` でレスポンスマッピングを確認・修正する
-4. ブラウザ上で名前検索・ジョブ別一覧・ID 解決を手動確認する
-5. 必要なら `version` / `schema` の取り扱い（ピン留め有無）をコードとコメントで明示する
+1. `xivapi.ts` の `prefixUrl` を `https://v2.xivapi.com/api` に切り替えた。beta と v2 の search / sheet レスポンス形は同等で、マッピング変更は不要だった
+2. `version` / `schema` はピン留めせず常に最新を使う方針をコメントで明示した（新コンテンツ追従優先）。レスポンスメタデータは従来どおり `xivapiSearchAll` / `fetchJobActions` で返す
+3. `convertBetaIconPath` を `convertIconPath` にリネームし、`actionSearch` / `statusSearch` / `jobActionList` を追随した。アイコン CDN は `xivapi.com/i` のまま
+4. `XivapiSheet` に `ClassJob` を追加し、`getObject('ClassJob', 43)` で `BST` / `魔獣使い` を取得できることをライブ API で確認した
+5. Action / Status 検索、Action ID 取得、PCT ジョブ一覧（25 件）を v2 上で同等動作として確認した
