@@ -63,21 +63,6 @@ const drawPrepullLine = (
     context.fillText(pullLabel, x + positions.prepullPadding, midLine - positions.pullLineHeightAbove - positions.textBottomPadding)
 }
 
-const drawBalanceLogo = (
-    context: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-) => {
-    drawImageFromSource(context, '/Balance_Logo-02.png', x, y, positions.balanceLogoWidth, positions.balanceLogoHeight)
-    drawImageFromSource(context, '/Balance_Logotype-08.png', x + positions.balanceLogoWidth + positions.balanceLogoGap, y + (positions.balanceLogoHeight - positions.balanceLogotypeHeight) / 2 - positions.balanceLogotypeAdjustTop, positions.balanceLogotypeWidth, positions.balanceLogotypeHeight)
-
-    context.fillStyle = colors.url
-    context.font = fonts.url
-    context.textAlign = "center"
-    context.textBaseline = "top"
-    context.fillText("www.thebalanceffxiv.com", x + positions.balanceLogoWidth / 2 + positions.balanceLogoWidth + positions.balanceLogoGap + positions.balanceUrlAdjustLeft, y + positions.balanceLogoHeight - positions.balanceUrlAdjustTop)
-}
-
 const drawHeaderChrome = (
     context: CanvasRenderingContext2D,
     width: number,
@@ -87,7 +72,6 @@ const drawHeaderChrome = (
     level: number,
     expansion: string,
     patch: string,
-    useBalanceLogo: boolean,
     levelPrefix: string,
     patchLabel: string,
 ) => {
@@ -126,10 +110,6 @@ const drawHeaderChrome = (
     context.strokeStyle = colors.line
     context.lineWidth = scale
     context.stroke()
-
-    if (useBalanceLogo) {
-        drawBalanceLogo(context, width - positions.titleMarginLeft - positions.balanceLogoWidth - positions.balanceLogotypeWidth - positions.balanceLogoGap, positions.titleMarginTop - positions.balanceLogoAdjustTop)
-    }
 }
 
 interface CanvasProps {
@@ -144,7 +124,6 @@ interface CanvasProps {
     level: number
     expansion: string
     patch: string
-    useBalanceLogo: boolean
 };
 
 const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
@@ -160,7 +139,6 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
         level,
         expansion,
         patch,
-        useBalanceLogo,
     },
     ref,
 ) => {
@@ -308,7 +286,6 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
             level,
             expansion,
             patch,
-            useBalanceLogo,
             t('canvas.levelPrefix'),
             t('canvas.patch'),
         )
@@ -482,7 +459,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
     }, [
         width, canvasHeight, useWrap, wrappedLayout, prepullIcons, rotationIcons, singleRowMidLine,
         prepullRotation.length, rotation.length, prepullWidth, screenWidth, jobIcon, title, jobName,
-        level, expansion, patch, canvasWidth, buffLineHeight, useBalanceLogo, t, globalBuffStackHeight,
+        level, expansion, patch, canvasWidth, buffLineHeight, t, globalBuffStackHeight,
     ])
 
     return (

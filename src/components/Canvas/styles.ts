@@ -33,15 +33,6 @@ export const styles = {
         buffLineArrowLength: 8 * scale,
         buffLineIconWidth: 24 * scale,
         buffLineIconHeight: 30 * scale,
-        balanceLogoWidth: 64 * scale,
-        balanceLogoHeight: 64 * scale,
-        balanceLogoAdjustTop: 24 * scale,
-        balanceLogotypeWidth: 256 * scale,
-        balanceLogotypeHeight: 24 * scale,
-        balanceLogoGap: 16 * scale,
-        balanceLogotypeAdjustTop: 8 * scale,
-        balanceUrlAdjustTop: 20 * scale,
-        balanceUrlAdjustLeft: 95 * scale,
         weaveSlotWidth: 64 * scale,
         weaveSlotHeight: 24 * scale,
         weaveSlotYOffset: 8 * scale,
@@ -70,7 +61,6 @@ export const styles = {
         pullTime: `${20 * scale}px ${roboto.style.fontFamily}`,
         title: `700 ${48 * scale}px ${kumbh.style.fontFamily}`,
         subtitle: `${32 * scale}px ${kumbh.style.fontFamily}`,
-        url: `${20 * scale}px ${kumbh.style.fontFamily}`,
     },
     colors: {
         background: '#121213',
@@ -78,7 +68,6 @@ export const styles = {
         title: '#e1e4e6',
         subtitle: '#c8cbce',
         line: '#e1e4e6',
-        url: '#95959b',
         gcdCount: '#7a7b7d'
     },
 } as const

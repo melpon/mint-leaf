@@ -39,11 +39,7 @@ const calculateTotalWidth = (prepullRotation: Action[], rotation: Action[]): num
     return contentWidth + positions.rotationPadding * 2
 }
 
-interface HomeProps {
-    discordAuth: JSX.Element
-}
-
-export const Home = ({ discordAuth }: HomeProps) => {
+export const Home = () => {
     const { locale } = useLanguage()
     const [rotation, setRotation] = useState<Action[]>([])
     const [rotationText, setRotationText] = useState('')
@@ -57,7 +53,6 @@ export const Home = ({ discordAuth }: HomeProps) => {
     const [expansion, setExpansion] = useState<string>(en.defaults.expansion)
     const [patch, setPatch] = useState<string>('7.4')
     const [level, setLevel] = useState<number>(100)
-    const [useBalanceLogo, setUseBalanceLogo] = useState<boolean>(false)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const rotationTextRef = useRef(rotationText)
 
@@ -163,7 +158,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
 
     return (
         <Container>
-            <Title discordAuth={discordAuth} />
+            <Title />
             <Header
                 currentJob={job}
                 setJob={setJob}
@@ -203,12 +198,9 @@ export const Home = ({ discordAuth }: HomeProps) => {
                 patch={patch}
                 level={level}
                 ref={canvasRef}
-                useBalanceLogo={useBalanceLogo}
             />
             <Footer
                 onExport={exportInfographic}
-                useBalanceLogo={useBalanceLogo}
-                setUseBalanceLogo={setUseBalanceLogo}
             />
         </Container>
     )

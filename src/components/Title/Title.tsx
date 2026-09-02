@@ -50,13 +50,6 @@ const SubTitleText = styled.h2`
     letter-spacing: 0.1px;
 `;
 
-const DiscordAuthContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: 2rem;
-`;
-
 const RightNav = styled.div`
     display: flex;
     flex-direction: row;
@@ -99,28 +92,9 @@ const LanguageDropdownTrigger = styled.button`
     }
 `;
 
-const BalanceLink = styled.a`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    color: white;
-    font-size: 1.25em;
-    text-decoration: none;
-    transition: color 0.15s ease;
-
-    &:hover {
-        color: #aaf0d1;
-    }
-`;
-
 const localeLabel = (locale: Locale): string => locale === 'en' ? 'EN' : 'JP'
 
-interface TitleProps {
-    discordAuth: JSX.Element
-}
-
-export const Title = ({ discordAuth }: TitleProps) => {
+export const Title = () => {
     const { t } = useTranslation()
     const { locale, setLocale } = useLanguage()
 
@@ -152,9 +126,6 @@ export const Title = ({ discordAuth }: TitleProps) => {
                     {t('title.subtitle')}
                 </SubTitleText>
             </TitleTextContainer>
-            <DiscordAuthContainer>
-                {discordAuth}
-            </DiscordAuthContainer>
             <RightNav>
                 <Dropdown
                     menu={{
@@ -171,16 +142,6 @@ export const Title = ({ discordAuth }: TitleProps) => {
                         <span className="chevron">▼</span>
                     </LanguageDropdownTrigger>
                 </Dropdown>
-                <BalanceLink href="https://discord.gg/thebalanceffxiv" target="_blank" rel="noreferrer">
-                    <NextImage
-                        src="/Balance_Logo-02.png"
-                        alt={t('title.balanceDiscordAlt')}
-                        width={36}
-                        height={36}
-                        priority={true}
-                    />
-                    {t('title.balanceLink')}
-                </BalanceLink>
             </RightNav>
         </TitleContainer>
     );

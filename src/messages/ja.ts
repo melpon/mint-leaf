@@ -8,8 +8,6 @@ export const ja: Messages = {
     title: {
         subtitle: 'FFXIV Rotation Builder',
         logoAlt: 'ロゴ',
-        balanceDiscordAlt: 'The Balance Discord',
-        balanceLink: 'The Balance FFXIV',
         language: '言語',
     },
     header: {
@@ -70,8 +68,6 @@ export const ja: Messages = {
     },
     footer: {
         export: 'PNG にエクスポート',
-        addBalanceStamp: 'Balance スタンプを追加',
-        removeBalanceStamp: 'Balance スタンプを削除',
     },
     canvas: {
         pull: '戦闘開始',
@@ -80,10 +76,6 @@ export const ja: Messages = {
         totalWidth: '全体幅',
         wrapWidth: '折り返し幅',
         rowSpacing: '行間隔',
-    },
-    discord: {
-        mentorSignIn: 'メンターサインイン',
-        avatarAlt: 'Discord アバター',
     },
     abilityIcon: {
         frameAlt: 'アイコンフレーム',
