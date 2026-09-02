@@ -6,6 +6,7 @@ import SearchInput from './SearchInput';
 import styled from 'styled-components';
 import { ActionBuilder } from './ActionBuilder';
 import { CustomActionInput } from './CustomActionInput';
+import { JobActionList } from './JobActionList';
 import { buffDetailsToStatus, getStoredCustomAction } from '@/lib/customActionsStore';
 import { useLanguage, useTranslation } from '@/context/LanguageContext';
 
@@ -130,6 +131,12 @@ export const ActionSelect: React.FC<ActionSelectProps> = ({
     if (!currentAction) {
         return (
             <ActionSelectContainer>
+                <JobActionList
+                    job={job}
+                    locale={locale}
+                    onSelect={setCurrentAction}
+                />
+                <div>{t('abilities.orDivider')}</div>
                 <SearchContainer>
                     <SearchInput
                         job={job}

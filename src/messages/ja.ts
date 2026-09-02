@@ -31,6 +31,11 @@ export const ja: Messages = {
         searchAction: 'アクションを検索...',
         searchStatus: 'ステータスを検索...',
         orDivider: '- または -',
+        jobActionListFilter: 'スキル一覧を絞り込み...',
+        jobActionListReload: 'スキル一覧を再取得',
+        jobActionListLoading: 'スキル一覧を読み込み中...',
+        jobActionListError: 'スキル一覧の取得に失敗しました',
+        jobActionListEmpty: 'このジョブのスキルが見つかりません',
     },
     actionBuilder: {
         unknown: '不明',

@@ -5,6 +5,12 @@ import { Locale } from '@/context/LanguageContext'
 
 const MAX_SEARCH_RESULTS = 10
 
+/** ジョブ別一覧取得時の 1 リクエストあたりの件数上限 */
+const JOB_ACTION_LIST_PAGE_LIMIT = 100
+
+/** ジョブ別一覧で取得するフィールド */
+const JOB_ACTION_LIST_FIELDS = 'Name,Icon,ClassJobLevel'
+
 type XivapiSheet = 'Action' | 'Status' | 'Item'
 
 interface XivapiSearchResponse {
@@ -12,6 +18,13 @@ interface XivapiSearchResponse {
     row_id: number
     score: number
     sheet: string
+}
+
+interface XivapiSearchPage {
+    results: XivapiSearchResponse[]
+    next?: string
+    version?: string
+    schema?: string
 }
 
 const xivapi = ky.create({
@@ -31,6 +44,65 @@ export const xivapiSearch = async (
             ...(language === 'ja' ? { language: 'ja' } : {}),
         },
     }).json()
+
+/**
+ * cursor ページングで search を全件取得する。
+ * 既存の名前検索（limit 10）とは別経路として使う。
+ */
+export const xivapiSearchAll = async (
+    sheets: XivapiSheet[],
+    query: string,
+    language: Locale,
+    options?: {
+        limit?: number
+        fields?: string
+    },
+): Promise<{
+    results: XivapiSearchResponse[]
+    version?: string
+    schema?: string
+}> => {
+    const limit = options?.limit ?? JOB_ACTION_LIST_PAGE_LIMIT
+    const fields = options?.fields
+    const allResults: XivapiSearchResponse[] = []
+    let cursor: string | undefined
+    let version: string | undefined
+    let schema: string | undefined
+
+    do {
+        const searchParams: Record<string, string | number> = {
+            limit,
+        }
+
+        if (cursor) {
+            // cursor 指定時は sheets / query は無視される
+            searchParams.cursor = cursor
+        } else {
+            searchParams.query = query
+            searchParams.sheets = sheets.join(',')
+            if (fields) {
+                searchParams.fields = fields
+            }
+            if (language === 'ja') {
+                searchParams.language = 'ja'
+            }
+        }
+
+        const page: XivapiSearchPage = await xivapi.get('search', { searchParams }).json()
+        allResults.push(...page.results)
+
+        if (page.version !== undefined) {
+            version = page.version
+        }
+        if (page.schema !== undefined) {
+            schema = page.schema
+        }
+
+        cursor = page.next
+    } while (cursor)
+
+    return { results: allResults, version, schema }
+}
 
 export const getObject = async (
     sheet: XivapiSheet,
@@ -61,3 +133,12 @@ export const buildActionSearchQuery = (nameQuery: string, language: Locale): str
 
 export const buildStatusSearchQuery = (nameQuery: string, language: Locale): string =>
     `${buildNameSearchQuery(nameQuery, language)} -Icon=${PLACEHOLDER_ICON_ID}`
+
+/**
+ * ジョブで使える PvE プレイヤースキル一覧用クエリ。
+ * ClassJobCategory でロールアクションも含め、IsPlayerAction で NPC/イベント技を除外する。
+ */
+export const buildJobActionListQuery = (jobAbbreviation: string): string =>
+    `+ClassJobCategory.${jobAbbreviation}=true +IsPvP=false +IsPlayerAction=true`
+
+export { JOB_ACTION_LIST_FIELDS, PLACEHOLDER_ICON_ID }
