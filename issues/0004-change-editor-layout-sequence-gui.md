@@ -2,7 +2,7 @@
 
 - Priority: High
 - Created: 2026-09-02
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-03
 - Model: Composer
 - Branch: feature/change-editor-layout-sequence-gui
 - Polished: {YYYY-MM-DD}
@@ -86,9 +86,9 @@
 
 ## 解決方法
 
-1. `Home` の縦積みを TopBar / MetaBar / 左右分割（EditorPanel + CanvasPreview）に組み替える
-2. Title の言語 UI を TopBar へ移し、Header を MetaBar に縮小（Job はドロップダウン化）
-3. `Action[]` を正として編集するシーケンス GUI を追加（並べ替え・削除・プロパティ編集の最小セット）
-4. Action Builder / テキスト List を副経路または段階的に縮退（互換のため `rotationToText` / `textToRotation` は Import / Export 用に残す）
-5. CanvasWidthBar・Footer の Export を TopBar / Canvas 付近へ再配置
-6. 初版を出したうえで見た目・操作性を見て細部を調整する（本 issue の骨格を優先）
+1. `Home` の縦積みを TopBar / MetaBar / 左 3 列（パレット+ImportExport・シーケンス・選択アクション）+ Canvas に組み替えた
+2. 言語 UI と Export を TopBar へ移し、Job を 1 アイコン + ドロップダウンの MetaBar に縮小した
+3. `Action[]` を正とするシーケンス GUI を追加し、並べ替えは DnD、詳細編集でプロパティを更新できるようにした
+4. テキスト Action List は Import / Export の副経路に格下げし、`rotationToText` / `textToRotation` は互換用に残した
+5. Canvas 全画面プレビュー、折り返し時の横スクロール、バフ編集時の無限更新などを調整した
+6. ビルドが通り、Export PNG も従来どおり動作することを確認した
