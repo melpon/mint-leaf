@@ -20,6 +20,7 @@ const CanvasContainer = styled.div<{ $overflow?: boolean }>`
     overflow-x: scroll;
     flex-grow: 0;
     flex-shrink: 1;
+    /* 親より広いときは先頭揃え。中央寄せだと左端までスクロールできない */
     justify-content: ${props => props.$overflow ? 'flex-start' : 'center'};
     background-color: #22242b;
 `
@@ -113,7 +114,6 @@ const drawHeaderChrome = (
 }
 
 interface CanvasProps {
-    screenWidth: number
     prepullRotation: Action[]
     rotation: Action[]
     wrapWidth?: number | null
@@ -128,7 +128,6 @@ interface CanvasProps {
 
 const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
     {
-        screenWidth,
         prepullRotation,
         rotation,
         wrapWidth = null,
@@ -143,6 +142,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
     ref,
 ) => {
     const { t } = useTranslation()
+    const containerRef = useRef<HTMLDivElement>(null)
     const innerRef = useRef<HTMLCanvasElement>(null)
     useImperativeHandle(ref, () => innerRef.current!, [])
     const stripIconRefs = useRef<Array<HTMLImageElement | null>>([])
@@ -150,13 +150,23 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
     const prepullIconRefs = useRef<Array<HTMLImageElement | null>>([])
     const rotationIconRefs = useRef<Array<HTMLImageElement | null>>([])
     const [canvasWidth, setCanvasWidth] = useState(0)
+    const [containerWidth, setContainerWidth] = useState(0)
     const [buffLineHeight, setBuffLineHeight] = useState(0)
 
     useEffect(() => {
-        const observer = new ResizeObserver(() => {
-            setCanvasWidth(innerRef.current?.scrollWidth ?? 0)
-        })
-        observer.observe(innerRef.current!)
+        const container = containerRef.current
+        const canvas = innerRef.current
+        if (!container || !canvas) return
+
+        const updateSizes = () => {
+            setContainerWidth(container.clientWidth)
+            setCanvasWidth(canvas.scrollWidth)
+        }
+
+        const observer = new ResizeObserver(updateSizes)
+        observer.observe(container)
+        observer.observe(canvas)
+        updateSizes()
         return () => observer.disconnect()
     }, [])
 
@@ -458,12 +468,14 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
         setBuffLineHeight(addedHeight)
     }, [
         width, canvasHeight, useWrap, wrappedLayout, prepullIcons, rotationIcons, singleRowMidLine,
-        prepullRotation.length, rotation.length, prepullWidth, screenWidth, jobIcon, title, jobName,
+        prepullRotation.length, rotation.length, prepullWidth, jobIcon, title, jobName,
         level, expansion, patch, canvasWidth, buffLineHeight, t, globalBuffStackHeight,
     ])
 
+    const overflowsHorizontally = canvasWidth > containerWidth
+
     return (
-        <CanvasContainer $overflow={canvasWidth > screenWidth}>
+        <CanvasContainer ref={containerRef} $overflow={overflowsHorizontally}>
             <BorderedCanvas
                 ref={innerRef}
                 width={width}

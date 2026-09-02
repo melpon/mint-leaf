@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Input as AntdInput } from 'antd'
+import { Button, Input as AntdInput } from 'antd'
 import { useTranslation } from '@/context/LanguageContext'
 import { styles } from './styles'
 
@@ -37,12 +37,17 @@ const Input = styled(AntdInput)`
     font-size: 14px;
 `
 
+const Spacer = styled.div`
+    flex: 1;
+`
+
 interface CanvasWidthBarProps {
     totalWidth: number
     wrapWidth: number | null
     setWrapWidth: (width: number | null) => void
     rowSpacing: number | null
     setRowSpacing: (spacing: number | null) => void
+    onPreview: () => void
 }
 
 /** Layout controls for the infographic canvas (not header metadata). */
@@ -52,6 +57,7 @@ export const CanvasWidthBar = ({
     setWrapWidth,
     rowSpacing,
     setRowSpacing,
+    onPreview,
 }: CanvasWidthBarProps) => {
     const { t } = useTranslation()
 
@@ -95,6 +101,10 @@ export const CanvasWidthBar = ({
                     }}
                 />
             </Field>
+            <Spacer />
+            <Button type="primary" onClick={onPreview}>
+                {t('canvas.preview')}
+            </Button>
         </Bar>
     )
 }

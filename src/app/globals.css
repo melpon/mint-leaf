@@ -67,14 +67,77 @@ body {
   border-radius: 50% !important;
 }
 
-.ant-btn-primary, .ant-btn-default, .ant-btn-dangerous {
+.ant-btn-primary,
+.ant-btn-default,
+.ant-btn-dangerous {
   background-color: #1d1d20 !important;
   border: 1.5px solid white !important;
+  color: #ffffff !important;
 }
 
-.ant-input-outlined {
+.ant-btn-default:hover,
+.ant-btn-primary:hover,
+.ant-btn-dangerous:hover {
+  color: #aaf0d1 !important;
+  border-color: #aaf0d1 !important;
+}
+
+/* ダーク UI 上の Input / TextArea / InputNumber のコントラスト確保 */
+.ant-input,
+.ant-input-outlined,
+.ant-input-affix-wrapper,
+.ant-input-affix-wrapper-outlined,
+.ant-input-number,
+.ant-input-number-outlined,
+.ant-input-number .ant-input-number-input {
   background-color: #1d1d20 !important;
-  color: white !important;
+  color: #ffffff !important;
+  border-color: #555 !important;
+}
+
+.ant-input::placeholder,
+.ant-input-outlined::placeholder,
+textarea.ant-input::placeholder {
+  color: #9a9da3 !important;
+  opacity: 1;
+}
+
+.ant-input:hover,
+.ant-input-outlined:hover,
+.ant-input-affix-wrapper:hover,
+.ant-input-number:hover {
+  border-color: #888 !important;
+}
+
+.ant-input:focus,
+.ant-input-outlined:focus,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused,
+.ant-input-number:focus,
+.ant-input-number-focused {
+  border-color: #aaf0d1 !important;
+}
+
+/* Import / Export の Collapse をダークパネルに合わせる */
+.ant-collapse,
+.ant-collapse-content,
+.ant-collapse-item {
+  background-color: #1a1c24 !important;
+  border-color: #555 !important;
+  color: #ffffff !important;
+}
+
+.ant-collapse .ant-collapse-header {
+  color: #ffffff !important;
+}
+
+.ant-collapse .ant-collapse-expand-icon {
+  color: #c8cbce !important;
+}
+
+.ant-collapse-content-box {
+  background-color: #1a1c24 !important;
+  color: #ffffff !important;
 }
 
 .language-dropdown-overlay .ant-dropdown-menu {

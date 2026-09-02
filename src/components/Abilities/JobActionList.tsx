@@ -69,7 +69,7 @@ const ErrorText = styled.div`
 `
 
 const ActionScroll = styled.div`
-    max-height: 140px;
+    max-height: min(480px, 50vh);
     overflow-y: auto;
     border: 1px solid #444;
     border-radius: 4px;

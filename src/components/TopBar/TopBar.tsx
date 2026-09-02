@@ -1,54 +1,50 @@
 "use client"
 
-import styled from 'styled-components';
-import { default as NextImage } from 'next/image';
-import { Dropdown } from 'antd';
-import type { MenuProps } from 'antd';
-import { Locale, useLanguage, useTranslation } from '@/context/LanguageContext';
+import styled from 'styled-components'
+import { default as NextImage } from 'next/image'
+import { Button, Dropdown } from 'antd'
+import type { MenuProps } from 'antd'
+import { Locale, useLanguage, useTranslation } from '@/context/LanguageContext'
 
-const TitleContainer = styled.div`
+const TopBarContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     background-color: #121317;
     width: 100%;
-    border-top: 1px solid white;
     border-bottom: 1px solid white;
-    height: 70px;
+    height: 56px;
     padding: 0 1rem;
     gap: 8px;
-`;
+    flex-shrink: 0;
+`
 
-const TitleTextContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding-top: 0.75rem;
-    padding-bottom: 0.5rem;
-`;
-
-const TitleWrapper = styled.div`
+const Brand = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-`;
+    gap: 8px;
+`
+
+const BrandText = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+`
 
 const TitleText = styled.h1`
     margin: 0;
     color: white;
-    align-content: center;
-    text-align: center;
-    font-size: 2.1em;
-    line-height: 0.9;
+    font-size: 1.5em;
+    line-height: 1;
     letter-spacing: 0.7px;
-`;
+`
 
-const SubTitleText = styled.h2`
+const SubTitleText = styled.span`
     color: #c8cbce;
-    text-align: center;
-    font-size: 14px;
+    font-size: 12px;
     letter-spacing: 0.1px;
-`;
+`
 
 const RightNav = styled.div`
     display: flex;
@@ -56,7 +52,7 @@ const RightNav = styled.div`
     align-items: center;
     gap: 1.5rem;
     margin-left: auto;
-`;
+`
 
 const LanguageDropdownTrigger = styled.button`
     display: inline-flex;
@@ -90,11 +86,15 @@ const LanguageDropdownTrigger = styled.button`
             color: #aaf0d1;
         }
     }
-`;
+`
 
-const localeLabel = (locale: Locale): string => locale === 'en' ? 'EN' : 'JP'
+const localeLabel = (locale: Locale): string => (locale === 'en' ? 'EN' : 'JP')
 
-export const Title = () => {
+interface TopBarProps {
+    onExport: () => void
+}
+
+export const TopBar = ({ onExport }: TopBarProps) => {
     const { t } = useTranslation()
     const { locale, setLocale } = useLanguage()
 
@@ -108,24 +108,20 @@ export const Title = () => {
     }
 
     return (
-        <TitleContainer>
-            <NextImage
-                src="/leaf-icon.svg"
-                alt={t('title.logoAlt')}
-                width={40}
-                height={40}
-                priority={true}
-            />
-            <TitleTextContainer>
-                <TitleWrapper>
-                    <TitleText>
-                        Mint Leaf
-                    </TitleText>
-                </TitleWrapper>
-                <SubTitleText>
-                    {t('title.subtitle')}
-                </SubTitleText>
-            </TitleTextContainer>
+        <TopBarContainer>
+            <Brand>
+                <NextImage
+                    src="/leaf-icon.svg"
+                    alt={t('title.logoAlt')}
+                    width={32}
+                    height={32}
+                    priority={true}
+                />
+                <BrandText>
+                    <TitleText>Mint Leaf</TitleText>
+                    <SubTitleText>{t('title.subtitle')}</SubTitleText>
+                </BrandText>
+            </Brand>
             <RightNav>
                 <Dropdown
                     menu={{
@@ -142,7 +138,10 @@ export const Title = () => {
                         <span className="chevron">▼</span>
                     </LanguageDropdownTrigger>
                 </Dropdown>
+                <Button type="primary" onClick={onExport}>
+                    {t('footer.export')}
+                </Button>
             </RightNav>
-        </TitleContainer>
-    );
+        </TopBarContainer>
+    )
 }

@@ -1,5 +1,5 @@
 import { DataStatus } from '@/app/api/xivapi/types'
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Status } from '../Canvas/types'
 import { Job } from '@/data/jobs'
 import { searchForStatus } from '@/app/api'
@@ -17,12 +17,12 @@ const RotationBuilderContainer = styled.div`
     font-size: 16px;
     flex-shrink: 0;
     margin-bottom: auto;
-`;
+`
 
 const SearchContainer = styled.div`
     display: block;
     width: 100%;
-`;
+`
 
 interface BuffSelectProps {
     job: Job
@@ -30,38 +30,64 @@ interface BuffSelectProps {
     preloadedStatus?: Status | undefined
 }
 
+const isSameStatus = (a: Status | undefined, b: Status): boolean => {
+    if (!a) {
+        return false
+    }
+    return (
+        a.id === b.id
+        && a.name === b.name
+        && a.imageSrc === b.imageSrc
+        && a.color === b.color
+        && a.duration === b.duration
+        && a.applicationDelay === b.applicationDelay
+    )
+}
+
 export const BuffSelect: React.FC<BuffSelectProps> = ({ job, setStatus, preloadedStatus }) => {
     const { t } = useTranslation()
     const { locale } = useLanguage()
-    const [currentStatus, setCurrentStatus] = useState<DataStatus | null>(null);
-    const [applicationDelay, setApplicationDelay] = useState<number | null>(0);
-    const [duration, setDuration] = useState<number | null>(20);
-    const [color, setColor] = useState<string>();
+    const [currentStatus, setCurrentStatus] = useState<DataStatus | null>(null)
+    const [applicationDelay, setApplicationDelay] = useState<number | null>(0)
+    const [duration, setDuration] = useState<number | null>(20)
+    const [color, setColor] = useState<string>()
+    const setStatusRef = useRef(setStatus)
+    const preloadedStatusRef = useRef(preloadedStatus)
+
+    useEffect(() => {
+        setStatusRef.current = setStatus
+    }, [setStatus])
+
+    useEffect(() => {
+        preloadedStatusRef.current = preloadedStatus
+    }, [preloadedStatus])
+
+    // 既存バフがある場合はフォームへ流し込む
+    useEffect(() => {
+        if (preloadedStatus && !currentStatus) {
+            const dataStatus: DataStatus = {
+                id: preloadedStatus.id,
+                name: preloadedStatus.name,
+                icon: new URL(
+                    preloadedStatus.imageSrc,
+                    typeof window !== 'undefined' ? window.location.origin : 'http://localhost',
+                ),
+            }
+            setCurrentStatus(dataStatus)
+            setDuration(preloadedStatus.duration)
+            setApplicationDelay(preloadedStatus.applicationDelay)
+            setColor(preloadedStatus.color)
+        }
+    }, [preloadedStatus, currentStatus])
 
     const searchStatuses = useCallback(
         (query: string, language: typeof locale) => searchForStatus(query, language),
         [],
     )
-    
-    // Effect to populate fields from preloaded status
-    useEffect(() => {
-        if (preloadedStatus && !currentStatus) {
-            // Create a DataStatus from the preloaded Status
-            const dataStatus: DataStatus = {
-                id: preloadedStatus.id,
-                name: preloadedStatus.name,
-                icon: new URL(preloadedStatus.imageSrc),
-            };
-            setCurrentStatus(dataStatus);
-            setDuration(preloadedStatus.duration);
-            setApplicationDelay(preloadedStatus.applicationDelay);
-            setColor(preloadedStatus.color);
-        }
-    }, [preloadedStatus, currentStatus]);
-    
+
     const onCreate = useCallback(() => {
         if (!currentStatus || !currentStatus.icon || duration === null || applicationDelay === null) {
-            return;
+            return
         }
 
         const buff: Status = {
@@ -71,10 +97,15 @@ export const BuffSelect: React.FC<BuffSelectProps> = ({ job, setStatus, preloade
             color: color ?? '#000000',
             duration: duration ?? 0,
             applicationDelay: applicationDelay ?? 0,
-        };
+        }
 
-        setStatus(buff);
-    }, [applicationDelay, color, currentStatus, duration, setStatus, t]);
+        // 内容が同じなら親を更新しない（キャンバス無限再描画を防ぐ）
+        if (isSameStatus(preloadedStatusRef.current, buff)) {
+            return
+        }
+
+        setStatusRef.current(buff)
+    }, [applicationDelay, color, currentStatus, duration, t])
 
     if (!currentStatus) {
         return (
@@ -91,7 +122,7 @@ export const BuffSelect: React.FC<BuffSelectProps> = ({ job, setStatus, preloade
                 <div>{t('abilities.orDivider')}</div>
                 <CustomBuffInput onCreate={setCurrentStatus} />
             </RotationBuilderContainer>
-        );
+        )
     }
 
     return (
@@ -105,5 +136,5 @@ export const BuffSelect: React.FC<BuffSelectProps> = ({ job, setStatus, preloade
             setColor={setColor}
             onCreate={onCreate}
         />
-    );
+    )
 }
