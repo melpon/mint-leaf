@@ -13,6 +13,30 @@ const messagesByLocale: Record<Locale, Messages> = {
     ja,
 }
 
+/**
+ * ブラウザの言語設定から初期 locale を判別する。
+ * navigator.languages を優先し、ja / ja-* なら日本語、それ以外は英語とする。
+ * 明示的なユーザー設定が localStorage に無いときのフォールバック用。
+ */
+const detectLocaleFromBrowser = (): Locale => {
+    const candidates =
+        typeof navigator !== 'undefined'
+            ? [...(navigator.languages ?? []), navigator.language]
+            : []
+
+    for (const candidate of candidates) {
+        if (!candidate) {
+            continue
+        }
+        const primary = candidate.toLowerCase().split('-')[0]
+        if (primary === 'ja') {
+            return 'ja'
+        }
+    }
+
+    return 'en'
+}
+
 type NestedKeyOf<T, Prefix extends string = ''> = T extends object
     ? {
         [K in keyof T & string]: T[K] extends object
@@ -47,10 +71,13 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     const [locale, setLocaleState] = useState<Locale>('en')
 
     useEffect(() => {
+        // ユーザーが明示的に選んだ言語があればそれを優先し、無ければブラウザ言語から判別する
         const stored = localStorage.getItem(STORAGE_KEY)
         if (stored === 'en' || stored === 'ja') {
             setLocaleState(stored)
+            return
         }
+        setLocaleState(detectLocaleFromBrowser())
     }, [])
 
     useEffect(() => {
