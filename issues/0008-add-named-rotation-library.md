@@ -2,7 +2,7 @@
 
 - Priority: High
 - Created: 2026-09-03
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-03
 - Model: Composer
 - Branch: feature/add-named-rotation-library
 - Polished: {YYYY-MM-DD}
@@ -103,10 +103,8 @@
 
 ## 解決方法
 
-1. `src/lib/` に作品レコードと `activeId` の読み書きモジュールを追加する（`customActionsStore` と同系統）。列挙・新規・削除・インポート用の挿入を同じスキーマで持つ
-2. `Home` でマウント後にアクティブなレコードを復元し、以降の編集をそのレコードへ書き戻す
-3. 左端タブ + フローティングパネルの UI を追加する（`Home` 配下。Editor 3 列の内側には置かない）
-4. パネルに一覧・新規・削除・テキスト入出力を実装する。ロード時はアクティブへの書き戻し → `activeId` 変更 → `Home` の state 反映、の順にする
-5. レコード一式のテキスト化とパースを `src/lib/` に置く。シーケンス専用の `parseRotation.ts` を流用してメタを落とさない
-6. 文言は `src/messages/en.ts` / `ja.ts` に追加する
-7. リロード・開閉・一覧・ロード・新規・削除・コピー・貼り付け・不正テキスト・不正 JSON を手動確認する
+1. `src/lib/rotationLibraryStore.ts` で作品レコード配列 + `activeId` を `mint-leaf-rotations` に永続化した。新規・インポートは先頭追加、編集では配列位置を維持し、一覧は DnD で並べ替える
+2. `src/lib/rotationRecordText.ts` で `format: mint-leaf-rotation` 付き JSON のコピー / 貼り付けを実装した。インポートは常に新 id で先頭追加する
+3. `Home` でマウント後にアクティブレコードを復元し、編集内容をアクティブへ書き戻す。パネル操作は書き戻し → 切替 / 新規 / 削除 / インポートの順
+4. `LibraryPanel` を TopBar 直下の Workspace に置き、MetaBar に重なるフローティングパネルとした。タブに被る MetaBar 左余白と「ジョブスキル」見出しだけずらした
+5. 文言は `src/messages/en.ts` / `ja.ts` の `library` に追加した。シーケンス専用 Import / Export は変更していない
