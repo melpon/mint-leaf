@@ -14,11 +14,26 @@ import { EditorPanel, dataActionToDefaultAction } from './Editor/EditorPanel'
 import { SequenceListKind } from './Editor/SequenceList'
 import { CanvasWidthBar } from './Canvas/CanvasWidthBar'
 import { CanvasPreviewModal } from './Canvas/CanvasPreviewModal'
+import { LibraryPanel } from './Library/LibraryPanel'
 import { useLanguage } from '@/context/LanguageContext'
 import { en } from '@/messages/en'
 import { ja } from '@/messages/ja'
-import { getJobName } from '@/lib/jobs'
+import { getJobAbbreviation, getJobName } from '@/lib/jobs'
 import { DataAction } from '@/app/api'
+import {
+    createEmptyRecord,
+    deleteRecord,
+    getActiveRecord,
+    loadRotationLibrary,
+    prependRecord,
+    reorderRecords,
+    resolveJobFromAbbreviation,
+    saveRotationLibrary,
+    upsertRecord,
+    type RotationLibraryStore,
+    type RotationRecord,
+} from '@/lib/rotationLibraryStore'
+import { rotationRecordToText, textToRotationRecord } from '@/lib/rotationRecordText'
 
 const { positions } = styles
 
@@ -31,6 +46,7 @@ const Container = styled.div`
 `
 
 const MainRow = styled.div`
+    position: relative;
     display: flex;
     flex-direction: row;
     flex: 1;
@@ -61,6 +77,35 @@ const calculateTotalWidth = (prepullRotation: Action[], rotation: Action[]): num
 const sortPrepull = (actions: Action[]): Action[] =>
     [...actions].sort((a, b) => (a.prepull ?? 0) - (b.prepull ?? 0))
 
+const buildRecordFromEditor = (
+    id: string,
+    fields: {
+        job: Job
+        rotationTitle: string
+        expansion: string
+        patch: string
+        level: number
+        wrapWidth: number | null
+        rowSpacing: number | null
+        prepullRotation: Action[]
+        rotation: Action[]
+    },
+): RotationRecord => ({
+    id,
+    title: fields.rotationTitle,
+    job: getJobAbbreviation(fields.job),
+    expansion: fields.expansion,
+    patch: fields.patch,
+    level: fields.level,
+    wrapWidth: fields.wrapWidth,
+    rowSpacing: fields.rowSpacing,
+    prepullRotation: fields.prepullRotation,
+    rotation: fields.rotation,
+})
+
+const recordsEqual = (left: RotationRecord, right: RotationRecord): boolean =>
+    JSON.stringify(left) === JSON.stringify(right)
+
 export const Home = () => {
     const { locale } = useLanguage()
     const [rotation, setRotation] = useState<Action[]>([])
@@ -75,7 +120,79 @@ export const Home = () => {
     const [level, setLevel] = useState<number>(100)
     const [selectRotationIndex, setSelectRotationIndex] = useState<number | null>(null)
     const [previewImageSrc, setPreviewImageSrc] = useState<string | null>(null)
+    const [library, setLibrary] = useState<RotationLibraryStore | null>(null)
+    const [hydrated, setHydrated] = useState(false)
     const canvasRef = useRef<HTMLCanvasElement>(null)
+    /** パネル操作直後の書き戻しで古いエディタ state が上書きしないよう抑制する */
+    const skipNextWriteBackRef = useRef(false)
+    /** パネル操作でクロージャの古い library を避ける */
+    const libraryRef = useRef<RotationLibraryStore | null>(null)
+    /** パネル操作時に最新のエディタ内容を同期的に書き戻すためのスナップショット */
+    const editorSnapshotRef = useRef({
+        job,
+        rotationTitle,
+        expansion,
+        patch,
+        level,
+        wrapWidth,
+        rowSpacing,
+        prepullRotation,
+        rotation,
+    })
+    editorSnapshotRef.current = {
+        job,
+        rotationTitle,
+        expansion,
+        patch,
+        level,
+        wrapWidth,
+        rowSpacing,
+        prepullRotation,
+        rotation,
+    }
+
+    const localeDefaults = useMemo(
+        () => (locale === 'ja'
+            ? { title: ja.defaults.rotationTitle, expansion: ja.defaults.expansion }
+            : { title: en.defaults.rotationTitle, expansion: en.defaults.expansion }),
+        [locale],
+    )
+
+    const applyRecordToEditor = useCallback((record: RotationRecord) => {
+        setJob(resolveJobFromAbbreviation(record.job))
+        setRotationTitle(record.title)
+        setExpansion(record.expansion)
+        setPatch(record.patch)
+        setLevel(record.level)
+        setWrapWidth(record.wrapWidth)
+        setRowSpacing(record.rowSpacing)
+        setPrepullRotation(record.prepullRotation)
+        setRotation(record.rotation)
+        setSelectRotationIndex(null)
+        setImportError(false)
+    }, [])
+
+    const commitLibrary = useCallback((next: RotationLibraryStore) => {
+        libraryRef.current = next
+        setLibrary(next)
+        saveRotationLibrary(next)
+    }, [])
+
+    /** 現在のエディタ内容をアクティブレコードへ書き戻したストアを返す */
+    const flushEditorIntoLibrary = useCallback((current: RotationLibraryStore): RotationLibraryStore => {
+        const snapshot = editorSnapshotRef.current
+        const record = buildRecordFromEditor(current.activeId, snapshot)
+        return upsertRecord(current, record)
+    }, [])
+
+    useEffect(() => {
+        const loaded = loadRotationLibrary()
+        skipNextWriteBackRef.current = true
+        libraryRef.current = loaded
+        setLibrary(loaded)
+        applyRecordToEditor(getActiveRecord(loaded))
+        setHydrated(true)
+    }, [applyRecordToEditor])
 
     useEffect(() => {
         setRotationTitle((current) => {
@@ -91,6 +208,41 @@ export const Home = () => {
             return current
         })
     }, [locale])
+
+    // 編集内容をアクティブレコードへ書き戻す（配列位置は維持）
+    useEffect(() => {
+        if (!hydrated) {
+            return
+        }
+        if (skipNextWriteBackRef.current) {
+            skipNextWriteBackRef.current = false
+            return
+        }
+
+        const current = libraryRef.current
+        if (!current) {
+            return
+        }
+        const snapshot = editorSnapshotRef.current
+        const nextRecord = buildRecordFromEditor(current.activeId, snapshot)
+        const existing = current.records.find((record) => record.id === current.activeId)
+        if (existing && recordsEqual(existing, nextRecord)) {
+            return
+        }
+        commitLibrary(upsertRecord(current, nextRecord))
+    }, [
+        hydrated,
+        job,
+        rotationTitle,
+        expansion,
+        patch,
+        level,
+        wrapWidth,
+        rowSpacing,
+        prepullRotation,
+        rotation,
+        commitLibrary,
+    ])
 
     const totalWidth = useMemo(
         () => calculateTotalWidth(prepullRotation, rotation),
@@ -224,6 +376,92 @@ export const Home = () => {
         setPreviewImageSrc(null)
     }, [])
 
+    const onLibrarySelect = useCallback((recordId: string) => {
+        const current = libraryRef.current
+        if (!current || recordId === current.activeId) {
+            return
+        }
+        const flushed = flushEditorIntoLibrary(current)
+        const next: RotationLibraryStore = { ...flushed, activeId: recordId }
+        const record = next.records.find((candidate) => candidate.id === recordId)
+        if (!record) {
+            return
+        }
+        skipNextWriteBackRef.current = true
+        commitLibrary(next)
+        applyRecordToEditor(record)
+    }, [flushEditorIntoLibrary, commitLibrary, applyRecordToEditor])
+
+    const onLibraryCreate = useCallback(() => {
+        const current = libraryRef.current
+        if (!current) {
+            return
+        }
+        const empty = createEmptyRecord(localeDefaults)
+        const next = prependRecord(flushEditorIntoLibrary(current), empty)
+        skipNextWriteBackRef.current = true
+        commitLibrary(next)
+        applyRecordToEditor(empty)
+    }, [flushEditorIntoLibrary, localeDefaults, commitLibrary, applyRecordToEditor])
+
+    const onLibraryDelete = useCallback((recordId: string) => {
+        const current = libraryRef.current
+        if (!current) {
+            return
+        }
+        const next = deleteRecord(flushEditorIntoLibrary(current), recordId, localeDefaults)
+        skipNextWriteBackRef.current = true
+        commitLibrary(next)
+        applyRecordToEditor(getActiveRecord(next))
+    }, [flushEditorIntoLibrary, localeDefaults, commitLibrary, applyRecordToEditor])
+
+    const onLibraryReorder = useCallback((fromIndex: number, toIndex: number) => {
+        const current = libraryRef.current
+        if (!current) {
+            return
+        }
+        commitLibrary(reorderRecords(current, fromIndex, toIndex))
+    }, [commitLibrary])
+
+    const onLibraryCopy = useCallback(async (recordId: string) => {
+        const current = libraryRef.current
+        if (!current) {
+            return
+        }
+        let source = current
+        if (recordId === current.activeId) {
+            source = flushEditorIntoLibrary(current)
+            commitLibrary(source)
+        }
+        const record = source.records.find((candidate) => candidate.id === recordId)
+        if (!record) {
+            return
+        }
+        try {
+            await navigator.clipboard.writeText(rotationRecordToText(record))
+        } catch (error) {
+            console.error('Failed to copy rotation record text:', error)
+        }
+    }, [flushEditorIntoLibrary, commitLibrary])
+
+    const onLibraryImport = useCallback((text: string): boolean => {
+        const current = libraryRef.current
+        if (!current) {
+            return false
+        }
+        try {
+            const imported = textToRotationRecord(text.trim())
+            const next = prependRecord(flushEditorIntoLibrary(current), imported)
+            skipNextWriteBackRef.current = true
+            commitLibrary(next)
+            applyRecordToEditor(imported)
+            return true
+        } catch (error) {
+            console.error('Failed to import rotation record text:', error)
+            return false
+        }
+    }, [flushEditorIntoLibrary, commitLibrary, applyRecordToEditor])
+
     return (
         <Container>
             <TopBar onExport={exportInfographic} />
@@ -240,6 +478,18 @@ export const Home = () => {
                 setLevel={setLevel}
             />
             <MainRow>
+                {library && (
+                    <LibraryPanel
+                        records={library.records}
+                        activeId={library.activeId}
+                        onSelect={onLibrarySelect}
+                        onCreate={onLibraryCreate}
+                        onDelete={onLibraryDelete}
+                        onReorder={onLibraryReorder}
+                        onCopy={onLibraryCopy}
+                        onImport={onLibraryImport}
+                    />
+                )}
                 <EditorPanel
                     job={job}
                     prepullRotation={prepullRotation}

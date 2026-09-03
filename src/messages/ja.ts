@@ -113,4 +113,20 @@ export const ja: Messages = {
     abilityIcon: {
         frameAlt: 'アイコンフレーム',
     },
+    library: {
+        tab: 'ライブラリ',
+        title: 'スキル回し',
+        new: '新規作成',
+        delete: '削除',
+        deleteConfirm: 'このスキル回しを削除しますか？',
+        copy: 'コピー',
+        importToggle: 'テキストを取り込む',
+        importApply: '貼り付けから追加',
+        importPlaceholder: '作品レコードの JSON を貼り付け...',
+        importError: 'テキストを取り込めませんでした',
+        copyFailed: 'コピーに失敗しました',
+        emptyTitle: '無題',
+        dragHandle: 'ドラッグして並べ替え',
+        active: '編集中',
+    },
 }

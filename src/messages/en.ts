@@ -111,6 +111,22 @@ export const en = {
     abilityIcon: {
         frameAlt: 'icon frame',
     },
+    library: {
+        tab: 'Library',
+        title: 'Rotations',
+        new: 'New',
+        delete: 'Delete',
+        deleteConfirm: 'Delete this rotation?',
+        copy: 'Copy',
+        importToggle: 'Import text',
+        importApply: 'Add from paste',
+        importPlaceholder: 'Paste a rotation record JSON here...',
+        importError: 'Could not import that text',
+        copyFailed: 'Failed to copy',
+        emptyTitle: 'Untitled',
+        dragHandle: 'Drag to reorder',
+        active: 'Editing',
+    },
 } as const
 
 type StringifyValues<T> = {
