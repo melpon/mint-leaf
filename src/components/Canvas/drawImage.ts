@@ -12,6 +12,8 @@ export const drawImageFromSource = (
     height: number,
 ) => {
     const image = new Image()
+    // 外部アイコン描画後に toDataURL するため CORS モードで読む
+    image.crossOrigin = 'anonymous'
     // public 配下のルート相対パスは basePath 付きにしないと Pages 上で 404 になる
     image.src = withBasePath(imageSrc)
     image.onload = () => {

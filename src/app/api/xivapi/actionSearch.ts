@@ -4,7 +4,7 @@ import { Locale } from '@/context/LanguageContext'
 import { DataAction } from './types'
 import { buildActionSearchQuery, convertIconPath, getObject, xivapiSearch } from './xivapi'
 
-const defaultIcon = 'https://xivapi.com/i/000000/000405_hr1.png'
+const defaultIcon = 'https://v2.xivapi.com/api/asset/ui/icon/000000/000405_hr1.tex?format=png'
 
 export const searchForAction = async (nameQuery: string, language: Locale): Promise<DataAction[]> => {
     if (nameQuery === "") return [];

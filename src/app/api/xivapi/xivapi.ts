@@ -120,14 +120,15 @@ export const getObject = async (
         searchParams: language === 'ja' ? { language: 'ja' } : {},
     }).json()
 
-/** ゲームテクスチャパスを xivapi.com の PNG CDN URL に変換する */
-export const convertIconPath = (path: string): URL => {
-    const [_, pathWithoutSuffix] = path.split('ui/icon/')
-    const [pathWithoutFileType] = pathWithoutSuffix.split('.tex')
-    const normalizedPath = pathWithoutFileType.replace(/_hr1$/, '')
+/**
+ * ゲームテクスチャパス（例: ui/icon/000000/000786_hr1.tex）を
+ * CORS 対応の v2 asset PNG URL に変換する。
+ * 旧 xivapi.com/i CDN は Access-Control-Allow-Origin が無く、
+ * canvas への描画後に toDataURL が SecurityError になる。
+ */
+export const convertIconPath = (path: string): URL =>
+    new URL(`https://v2.xivapi.com/api/asset/${path}?format=png`)
 
-    return new URL(`https://xivapi.com/i/${normalizedPath}.png`)
-}
 
 const PLACEHOLDER_ICON_ID = 405
 

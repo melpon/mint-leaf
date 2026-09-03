@@ -10,7 +10,7 @@ import {
     xivapiSearchAll,
 } from './xivapi'
 
-const defaultIcon = 'https://xivapi.com/i/000000/000405_hr1.png'
+const defaultIcon = 'https://v2.xivapi.com/api/asset/ui/icon/000000/000405_hr1.tex?format=png'
 
 export interface JobActionFetchResult {
     actions: DataAction[]

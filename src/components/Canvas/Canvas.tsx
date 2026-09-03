@@ -491,6 +491,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                                 ref={ref => { stripIconRefs.current[index] = ref }}
                                 src={withBasePath(icon.imageSrc)}
                                 alt={''}
+                                crossOrigin="anonymous"
                                 style={{ display: 'none' }}
                                 width={icon.width}
                                 height={icon.height}
@@ -503,6 +504,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                                 ref={ref => { statusIconRefs.current[index] = ref }}
                                 src={withBasePath(icon.imageSrc)}
                                 alt={''}
+                                crossOrigin="anonymous"
                                 style={{ display: 'none' }}
                                 width={positions.buffLineIconWidth}
                                 height={positions.buffLineIconHeight}
@@ -519,6 +521,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                                 ref={ref => { prepullIconRefs.current[index] = ref }}
                                 src={withBasePath(icon.imageSrc)}
                                 alt={''}
+                                crossOrigin="anonymous"
                                 style={{ display: 'none' }}
                                 width={icon.width}
                                 height={icon.height}
@@ -531,6 +534,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                                 ref={ref => { /* unused in single path for buffs */ }}
                                 src={withBasePath(icon.imageSrc)}
                                 alt={''}
+                                crossOrigin="anonymous"
                                 style={{ display: 'none' }}
                                 width={positions.buffLineIconWidth}
                                 height={positions.buffLineIconHeight}
@@ -543,6 +547,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                                 ref={ref => { rotationIconRefs.current[index] = ref }}
                                 src={withBasePath(icon.imageSrc)}
                                 alt={''}
+                                crossOrigin="anonymous"
                                 style={{ display: 'none' }}
                                 width={icon.width}
                                 height={icon.height}
@@ -555,6 +560,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                                 ref={ref => { statusIconRefs.current[index] = ref }}
                                 src={withBasePath(icon.imageSrc)}
                                 alt={''}
+                                crossOrigin="anonymous"
                                 style={{ display: 'none' }}
                                 width={positions.buffLineIconWidth}
                                 height={positions.buffLineIconHeight}

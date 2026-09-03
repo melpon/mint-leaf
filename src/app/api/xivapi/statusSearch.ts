@@ -4,7 +4,7 @@ import { Locale } from '@/context/LanguageContext'
 import { DataStatus } from './types'
 import { buildStatusSearchQuery, xivapiSearch, convertIconPath, getObject } from './xivapi'
 
-const defaultIcon = 'https://xivapi.com/i/000000/000405_hr1.png'
+const defaultIcon = 'https://v2.xivapi.com/api/asset/ui/icon/000000/000405_hr1.tex?format=png'
 
 export const searchForStatus = async (nameQuery: string, language: Locale): Promise<DataStatus[]> => {
     if (nameQuery === "") return [];
