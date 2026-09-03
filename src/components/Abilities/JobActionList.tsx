@@ -6,6 +6,7 @@ import { Job } from '@/data/jobs'
 import { Locale, useTranslation } from '@/context/LanguageContext'
 import { getJobAbbreviation } from '@/lib/jobs'
 import { getCachedJobActions, setCachedJobActions } from '@/lib/jobActionsStore'
+import { withBasePath } from '@/lib/basePath'
 
 const ListContainer = styled.div`
     display: flex;
@@ -216,7 +217,7 @@ export const JobActionList: React.FC<JobActionListProps> = ({
                                 <Image
                                     width={28}
                                     height={28}
-                                    src={action.icon.toString()}
+                                    src={withBasePath(action.icon.toString())}
                                     alt={action.name ?? ''}
                                 />
                             )}

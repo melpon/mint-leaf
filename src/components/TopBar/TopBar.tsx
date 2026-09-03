@@ -5,6 +5,7 @@ import { default as NextImage } from 'next/image'
 import { Button, Dropdown } from 'antd'
 import type { MenuProps } from 'antd'
 import { Locale, useLanguage, useTranslation } from '@/context/LanguageContext'
+import { withBasePath } from '@/lib/basePath'
 
 const TopBarContainer = styled.div`
     display: flex;
@@ -111,7 +112,7 @@ export const TopBar = ({ onExport }: TopBarProps) => {
         <TopBarContainer>
             <Brand>
                 <NextImage
-                    src="/leaf-icon.svg"
+                    src={withBasePath('/leaf-icon.svg')}
                     alt={t('title.logoAlt')}
                     width={32}
                     height={32}

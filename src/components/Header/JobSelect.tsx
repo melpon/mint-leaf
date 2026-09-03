@@ -6,6 +6,7 @@ import { Dropdown } from 'antd'
 import { useLanguage, useTranslation } from '@/context/LanguageContext'
 import { getJobName } from '@/lib/jobs'
 import type { TranslationKey } from '@/context/LanguageContext'
+import { withBasePath } from '@/lib/basePath'
 
 const JOB_ICON_WIDTH = 36
 const MENU_ICON_WIDTH = 32
@@ -118,7 +119,7 @@ export const JobSelect = ({ currentJob, setJob }: JobSelectProps) => {
                                     }}
                                 >
                                     <NextImage
-                                        src={job.borderedIcon}
+                                        src={withBasePath(job.borderedIcon)}
                                         alt={getJobName(job, locale)}
                                         width={MENU_ICON_WIDTH}
                                         height={MENU_ICON_WIDTH}
@@ -142,7 +143,7 @@ export const JobSelect = ({ currentJob, setJob }: JobSelectProps) => {
             <Trigger type="button" aria-label={t('header.job')}>
                 {currentJob && (
                     <NextImage
-                        src={currentJob.borderedIcon}
+                        src={withBasePath(currentJob.borderedIcon)}
                         alt={getJobName(currentJob, locale)}
                         width={JOB_ICON_WIDTH}
                         height={JOB_ICON_WIDTH}

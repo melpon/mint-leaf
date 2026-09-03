@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 import { default as NextImage } from 'next/image';
 import { DataStatus } from '@/app/api/xivapi/types';
+import { withBasePath } from '@/lib/basePath';
 
 const AbilityContainer = styled.div<{ $width: number }>`
     display: flex;
@@ -22,7 +23,7 @@ export const StatusIcon = forwardRef<HTMLImageElement, StatusIconProps>(
             <AbilityContainer $width={width}>
                 <IconImage
                     ref={ref}
-                    src={status.icon?.toString() ?? ''}
+                    src={withBasePath(status.icon?.toString() ?? '')}
                     alt={status.name ?? ''}
                     height={width}
                     width={width}

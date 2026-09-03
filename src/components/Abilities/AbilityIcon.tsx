@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import { default as NextImage } from 'next/image'
 import { DataAction } from '@/app/api'
 import { useTranslation } from '@/context/LanguageContext'
+import { withBasePath } from '@/lib/basePath'
 
 const AbilityContainer = styled.div<{ $width: number }>`
     position: relative;
@@ -40,13 +41,13 @@ export const AbilityIcon = ({ action, width }: AbilityIconProps) => {
     return (
         <AbilityContainer $width={width}>
             <IconImage
-                src={action.icon?.toString() ?? ''}
+                src={withBasePath(action.icon?.toString() ?? '')}
                 alt={action.name ?? ''}
                 height={width}
                 width={width}
             />
             <FrameImage
-                src={'/icon_frame.png'}
+                src={withBasePath('/icon_frame.png')}
                 alt={t('abilityIcon.frameAlt')}
                 height={width}
                 width={width}

@@ -26,6 +26,7 @@ import { useLanguage, useTranslation } from '@/context/LanguageContext'
 import { getJobName } from '@/lib/jobs'
 import type { RotationRecord } from '@/lib/rotationLibraryStore'
 import { resolveJobFromAbbreviation } from '@/lib/rotationLibraryStore'
+import { withBasePath } from '@/lib/basePath'
 
 const PANEL_WIDTH_PX = 280
 /** 畳んだタブがラベルに被らないよう、MetaBar / パレット左に足す余白 */
@@ -279,7 +280,7 @@ const SortableLibraryRow = ({
             <JobIcon
                 width={24}
                 height={24}
-                src={job.icon}
+                src={withBasePath(job.icon)}
                 alt={getJobName(job, locale)}
             />
             <Labels>

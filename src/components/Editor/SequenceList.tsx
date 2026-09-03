@@ -19,6 +19,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { Action } from '../Canvas/types'
 import { useTranslation } from '@/context/LanguageContext'
+import { withBasePath } from '@/lib/basePath'
 
 export type SequenceListKind = 'prepull' | 'rotation'
 
@@ -214,7 +215,7 @@ const SortableActionRow = ({
                 <Image
                     width={28}
                     height={28}
-                    src={action.imageSrc}
+                    src={withBasePath(action.imageSrc)}
                     alt={action.name}
                 />
             )}

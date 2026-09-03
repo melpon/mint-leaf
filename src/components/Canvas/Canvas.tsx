@@ -10,6 +10,7 @@ import { scale, styles } from './styles'
 import { drawLabel, drawGCDLabel, drawOGCDLabel } from './drawLabel'
 import { assignBuffLineDepths, drawBuffLines } from './drawBuffLines'
 import { useTranslation } from '@/context/LanguageContext'
+import { withBasePath } from '@/lib/basePath'
 
 const { height, widthInitial, positions, fonts, colors } = styles
 
@@ -488,7 +489,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                             <NextImage
                                 key={`strip-${index}`}
                                 ref={ref => { stripIconRefs.current[index] = ref }}
-                                src={icon.imageSrc}
+                                src={withBasePath(icon.imageSrc)}
                                 alt={''}
                                 style={{ display: 'none' }}
                                 width={icon.width}
@@ -500,7 +501,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                             <NextImage
                                 key={`wrap-status-${index}`}
                                 ref={ref => { statusIconRefs.current[index] = ref }}
-                                src={icon.imageSrc}
+                                src={withBasePath(icon.imageSrc)}
                                 alt={''}
                                 style={{ display: 'none' }}
                                 width={positions.buffLineIconWidth}
@@ -516,7 +517,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                             <NextImage
                                 key={`prepull-${index}`}
                                 ref={ref => { prepullIconRefs.current[index] = ref }}
-                                src={icon.imageSrc}
+                                src={withBasePath(icon.imageSrc)}
                                 alt={''}
                                 style={{ display: 'none' }}
                                 width={icon.width}
@@ -528,7 +529,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                             <NextImage
                                 key={`prepull-status-${index}`}
                                 ref={ref => { /* unused in single path for buffs */ }}
-                                src={icon.imageSrc}
+                                src={withBasePath(icon.imageSrc)}
                                 alt={''}
                                 style={{ display: 'none' }}
                                 width={positions.buffLineIconWidth}
@@ -540,7 +541,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                             <NextImage
                                 key={`rotation-${index}`}
                                 ref={ref => { rotationIconRefs.current[index] = ref }}
-                                src={icon.imageSrc}
+                                src={withBasePath(icon.imageSrc)}
                                 alt={''}
                                 style={{ display: 'none' }}
                                 width={icon.width}
@@ -552,7 +553,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
                             <NextImage
                                 key={`status-${index}`}
                                 ref={ref => { statusIconRefs.current[index] = ref }}
-                                src={icon.imageSrc}
+                                src={withBasePath(icon.imageSrc)}
                                 alt={''}
                                 style={{ display: 'none' }}
                                 width={positions.buffLineIconWidth}

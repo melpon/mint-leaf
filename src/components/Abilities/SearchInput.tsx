@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import { Job } from '@/data/jobs'
 import { DataStatus } from '@/app/api/xivapi/types'
 import { Locale } from '@/context/LanguageContext'
+import { withBasePath } from '@/lib/basePath'
 
 const LabelContainer = styled.div`
     display: flex;
@@ -25,7 +26,7 @@ const SearchLabel = <SearchType extends DataAction | DataStatus>({ name, icon }:
             <Image
                 width={32}
                 height={32}
-                src={icon.toString()}
+                src={withBasePath(icon.toString())}
                 alt={name ?? ''}
             />
         }
