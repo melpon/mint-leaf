@@ -28,10 +28,14 @@ import type { RotationRecord } from '@/lib/rotationLibraryStore'
 import { resolveJobFromAbbreviation } from '@/lib/rotationLibraryStore'
 
 const PANEL_WIDTH_PX = 280
+/** 畳んだタブがラベルに被らないよう、MetaBar / パレット左に足す余白 */
+export const LIBRARY_TAB_GUTTER_PX = 28
 
 const Root = styled.div`
     position: absolute;
-    inset: 0 auto 0 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
     z-index: 20;
     pointer-events: none;
 `

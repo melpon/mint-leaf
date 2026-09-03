@@ -10,6 +10,7 @@ import { useLanguage, useTranslation } from '@/context/LanguageContext'
 import { SequenceList, SequenceListKind, SequenceSelection } from './SequenceList'
 import { SequenceDetail } from './SequenceDetail'
 import { ImportExport } from './ImportExport'
+import { LIBRARY_TAB_GUTTER_PX } from '@/components/Library/LibraryPanel'
 
 const DEFAULT_RECAST_TIME = 2.5
 const DEFAULT_CAST_TIME = 0
@@ -53,6 +54,11 @@ const SectionTitle = styled.h3`
     font-size: 13px;
     font-weight: 600;
     color: #c8cbce;
+`
+
+/** ライブラリタブに被る「ジョブスキル」見出しだけ右へずらす */
+const PaletteSectionTitle = styled(SectionTitle)`
+    padding-left: ${LIBRARY_TAB_GUTTER_PX}px;
 `
 
 const PaletteExtras = styled.div`
@@ -209,7 +215,7 @@ export const EditorPanel = ({
         <>
             <PaletteColumn>
                 <Block>
-                    <SectionTitle>{t('editor.palette')}</SectionTitle>
+                    <PaletteSectionTitle>{t('editor.palette')}</PaletteSectionTitle>
                     <JobActionList job={job} locale={locale} onSelect={onPaletteSelect} />
                     <PaletteExtras>
                         <Divider>{t('abilities.orDivider')}</Divider>

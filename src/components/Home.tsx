@@ -45,8 +45,17 @@ const Container = styled.div`
     overflow: hidden;
 `
 
-const MainRow = styled.div`
+/** TopBar 直下。ライブラリパネルが MetaBar に重なるための基準領域 */
+const Workspace = styled.div`
     position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+`
+
+const MainRow = styled.div`
     display: flex;
     flex-direction: row;
     flex: 1;
@@ -465,19 +474,7 @@ export const Home = () => {
     return (
         <Container>
             <TopBar onExport={exportInfographic} />
-            <MetaBar
-                currentJob={job}
-                setJob={setJob}
-                title={rotationTitle}
-                setTitle={setRotationTitle}
-                expansion={expansion}
-                setExpansion={setExpansion}
-                patch={patch}
-                setPatch={setPatch}
-                level={level}
-                setLevel={setLevel}
-            />
-            <MainRow>
+            <Workspace>
                 {library && (
                     <LibraryPanel
                         records={library.records}
@@ -490,43 +487,57 @@ export const Home = () => {
                         onImport={onLibraryImport}
                     />
                 )}
-                <EditorPanel
-                    job={job}
-                    prepullRotation={prepullRotation}
-                    rotation={rotation}
-                    importError={importError}
-                    onUpdateAction={updateAction}
-                    onRemoveAction={removeAction}
-                    onReorderAction={reorderAction}
-                    onImport={(text) => void importRotationText(text)}
-                    onPaletteSelect={onPaletteSelect}
-                    selectRotationIndex={selectRotationIndex}
-                    onSelectRotationIndexHandled={onSelectRotationIndexHandled}
+                <MetaBar
+                    currentJob={job}
+                    setJob={setJob}
+                    title={rotationTitle}
+                    setTitle={setRotationTitle}
+                    expansion={expansion}
+                    setExpansion={setExpansion}
+                    patch={patch}
+                    setPatch={setPatch}
+                    level={level}
+                    setLevel={setLevel}
                 />
-                <CanvasPreview>
-                    <CanvasWidthBar
-                        totalWidth={totalWidth}
-                        wrapWidth={wrapWidth}
-                        setWrapWidth={setWrapWidth}
-                        rowSpacing={rowSpacing}
-                        setRowSpacing={setRowSpacing}
-                        onPreview={openPreview}
-                    />
-                    <Canvas
+                <MainRow>
+                    <EditorPanel
+                        job={job}
                         prepullRotation={prepullRotation}
                         rotation={rotation}
-                        wrapWidth={wrapWidth}
-                        rowSpacing={rowSpacing}
-                        jobName={getJobName(job, locale)}
-                        jobIcon={job?.icon}
-                        title={rotationTitle}
-                        expansion={expansion}
-                        patch={patch}
-                        level={level}
-                        ref={canvasRef}
+                        importError={importError}
+                        onUpdateAction={updateAction}
+                        onRemoveAction={removeAction}
+                        onReorderAction={reorderAction}
+                        onImport={(text) => void importRotationText(text)}
+                        onPaletteSelect={onPaletteSelect}
+                        selectRotationIndex={selectRotationIndex}
+                        onSelectRotationIndexHandled={onSelectRotationIndexHandled}
                     />
-                </CanvasPreview>
-            </MainRow>
+                    <CanvasPreview>
+                        <CanvasWidthBar
+                            totalWidth={totalWidth}
+                            wrapWidth={wrapWidth}
+                            setWrapWidth={setWrapWidth}
+                            rowSpacing={rowSpacing}
+                            setRowSpacing={setRowSpacing}
+                            onPreview={openPreview}
+                        />
+                        <Canvas
+                            prepullRotation={prepullRotation}
+                            rotation={rotation}
+                            wrapWidth={wrapWidth}
+                            rowSpacing={rowSpacing}
+                            jobName={getJobName(job, locale)}
+                            jobIcon={job?.icon}
+                            title={rotationTitle}
+                            expansion={expansion}
+                            patch={patch}
+                            level={level}
+                            ref={canvasRef}
+                        />
+                    </CanvasPreview>
+                </MainRow>
+            </Workspace>
             {previewImageSrc && (
                 <CanvasPreviewModal
                     imageSrc={previewImageSrc}
