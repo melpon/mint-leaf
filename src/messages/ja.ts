@@ -74,7 +74,7 @@ export const ja: Messages = {
         timeSeconds: '時間 (秒)',
         recastTime: 'リキャスト (秒)',
         castTime: 'キャスト (秒)',
-        weaveLate: '遅延ウェーブ？',
+        weaveLate: '遅延ウィーブ？',
         addToRotation: 'ローテーションに追加',
         clear: 'クリア',
     },
