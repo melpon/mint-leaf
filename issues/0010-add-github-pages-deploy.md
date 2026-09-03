@@ -2,7 +2,7 @@
 
 - Priority: Medium
 - Created: 2026-09-03
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-03
 - Model: Composer
 - Branch: feature/add-github-pages-deploy
 - Polished: {YYYY-MM-DD}
@@ -66,9 +66,9 @@
 
 ## 解決方法
 
-1. `next.config.mjs` に `output: 'export'`・`basePath` / `assetPrefix: '/mint-leaf'`・`images.unoptimized: true` を追加する
-2. ローカルで `next build` が成功し、`out/`（または同等の静的出力）が生成されることを確認する
-3. `.github/workflows/` に Pages デプロイ用ワークフローを追加する
-4. リポジトリの Pages を GitHub Actions ソースに切り替え、初回デプロイを通す
-5. 公開 URL でアセットパスと主要操作を手動確認する
-6. README に公開 URL とデプロイ概要を追記する
+1. `next.config.mjs` に `output: 'export'`・`basePath` / `assetPrefix: '/mint-leaf'`・`trailingSlash: true`・`images.unoptimized: true`・`NEXT_PUBLIC_BASE_PATH` を追加した
+2. `src/lib/basePath.ts` の `withBasePath` を `drawImageFromSource` と `next/image` 利用箇所に適用し、Pages 上でのアセット 404 を防いだ
+3. `.github/workflows/deploy-pages.yml` で `main` push 時に `yarn build` → `out/` を公式 Pages デプロイするよう追加した（actions はコミットハッシュ固定）
+4. README に公開 URL・Pages Source を GitHub Actions にする手順・ローカル静的確認手順を追記した
+5. ローカルで `yarn build` が成功し `out/` が生成されること、HTML 内のアセットが `/mint-leaf/...` 付きであることを確認した
+6. リポジトリ Settings → Pages → Source を GitHub Actions に切り替えたうえで初回デプロイを通す（リポジトリ側の手動設定）
