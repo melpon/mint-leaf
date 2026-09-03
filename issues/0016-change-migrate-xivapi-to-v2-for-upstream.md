@@ -2,7 +2,7 @@
 
 - Priority: High
 - Created: 2026-09-04
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-04
 - Model: GPT-5.6
 - Branch: feature/change-migrate-xivapi-to-v2
 - Polished: {YYYY-MM-DD}
@@ -42,18 +42,19 @@ API 基盤の差し替えは後続機能の前提になり、ここがズレる�
 - ローテーション多段レイアウト追加
 - 選択ジョブのパレット表示
 - 複数ローテーションのローカル保存
+- ジョブ別スキル一覧（`jobActionList` / UI）の追加（0014 側）
 
 ## 完了条件
 
 - upstream 側で XIVAPI 呼び出しが v2 に切り替わっている
 - Action / Status の名前検索が取得でき、アイコン表示が破綻しない
-- ジョブ別スキル一覧が取得でき、既存のアクション選択フローに合流する
 - v2 移行に伴う型・値の差分が呼び出し側に波及していない（コンパイルが通る）
 
 ## 解決方法
 
-1. `src/app/api/xivapi/xivapi.ts` の XIVAPI ベース設定を v2 に切り替え、v2 asset へのアイコン変換を反映する
-2. `src/app/api/xivapi/actionSearch.ts` / `statusSearch.ts` / `jobActionList.ts` が `xvapi.ts` 側の変換関数と整合するよう更新する
-3. upstream の呼び出し側（`JobActionList` 等）が期待する戻り値と icon 型を満たしていることを確認する
-4. 手動確認として、主要 UI でジョブ切替・アクション検索・一覧取得・選択が従来どおり動くことを検証する
-
+1. `_working/mint-leaf` の `feature/change-migrate-xivapi-to-v2` で、`xivapi.ts` の `prefixUrl` を `https://v2.xivapi.com/api` に切り替えた
+2. `convertBetaIconPath` を `convertIconPath` に置き換え、アイコンを v2 asset PNG URL に変換するようにした
+3. `buildActionSearchQuery` / `buildStatusSearchQuery` でプレースホルダ Icon id `405` を検索クエリから除外した
+4. 公開関数のシグネチャは維持した（`language` 引数は付けない）
+5. もともと `ky` を import していたが `package.json` 未記載だったため、ローカルで動かすために `"ky": "1"` と `yarn.lock` を追加した（v2 API 自体の要件ではない）
+6. `yarn build` と v2 の search / sheet / asset 応答を確認した。コミットは `af3b86d`
