@@ -1,70 +1,80 @@
 import { DataAction } from '@/app/api'
 import { Button, Input as BaseInput } from 'antd';
 import React, { useState } from 'react';
-import { CSSTransition } from 'react-transition-group';
 import styled from 'styled-components';
 import { useTranslation } from '@/context/LanguageContext'
 
 const Input = styled(BaseInput)`
+    width: 100%;
+
     &::placeholder {
         color: #808080;
     }
 `;
 
 const ButtonContainer = styled.div`
+    width: 100%;
+
     > * {
-        font-size: 16px;
+        width: 100%;
+        font-size: 14px;
         line-height: 20px;
     }
 `;
 
-const CustomActionInputContainer = styled.div`
+const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
     gap: 8px;
-    width: 60%;
-    &.enter {
-        opacity: 0.5;
-        width: 15%;
-    }
-    &.enter-active {
-        opacity: 1;
-        width: 60%;
-        transition: width 0.5s, opacity 0.5s;
-    }
-    &.enter-done {
-        width: 60%;
-    }
-    &.exit {
-        opacity: 1;
-        width: 60%;
-    }
-    &.exit-active {
-        opacity: 0.5;
-        width: 15%;
-        transition: width 0.5s, opacity 0.5s;
+    width: 100%;
+`;
+
+const ActionButtons = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    width: 100%;
+
+    > * {
+        flex: 1;
     }
 `;
 
 interface CustomActionInputProps {
-    onCreate: (action: DataAction) => void;
+    onCreate: (action: DataAction) => void
 }
 
 export const CustomActionInput: React.FC<CustomActionInputProps> = ({ onCreate }) => {
     const { t } = useTranslation()
-    const [isClicked, toggleClicked] = useState<boolean>(false);
-    const [hasError, toggleError] = useState<boolean>(false);
-    const [iconUrl, setIconUrl] = useState<string>();
-    const [name, setName] = useState<string>();
-    
+    const [isOpen, setIsOpen] = useState(false);
+    const [hasError, setHasError] = useState(false);
+    const [iconUrl, setIconUrl] = useState('');
+    const [name, setName] = useState('');
+
+    const resetForm = () => {
+        setName('');
+        setIconUrl('');
+        setHasError(false);
+    }
+
+    const closeForm = () => {
+        setIsOpen(false);
+        resetForm();
+    }
+
     const handleIconUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setIconUrl(value);
+        if (value.trim() === '') {
+            setHasError(false);
+            return;
+        }
         try {
-            new URL(e.target.value);
-            setIconUrl(e.target.value);
+            new URL(value);
+            setHasError(false);
         } catch {
-            toggleError(true);
+            setHasError(true);
         }
     }
 
@@ -76,41 +86,40 @@ export const CustomActionInput: React.FC<CustomActionInputProps> = ({ onCreate }
             id: encodeURI(`custom-${iconUrl}-${name}`),
             icon: new URL(iconUrl),
         });
+        closeForm();
+    }
+
+    if (!isOpen) {
+        return (
+            <ButtonContainer>
+                <Button type="primary" onClick={() => setIsOpen(true)}>
+                    {t('customAction.button')}
+                </Button>
+            </ButtonContainer>
+        );
     }
 
     return (
-        <>
-            {!isClicked &&
-                <ButtonContainer>
-                    <Button type="primary" onClick={() => toggleClicked(true)}>
-                        {t('customAction.button')}
-                    </Button>
-                </ButtonContainer>
-            }
-            <CSSTransition
-                in={isClicked}
-                onExit={() => toggleError(false)}
-                onExited={() => toggleClicked(false)}
-                timeout={500}
-                unmountOnExit
-            >
-                <CustomActionInputContainer>
-                    <Input
-                        placeholder={t('customAction.namePlaceholder')}
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                    <Input
-                        placeholder={t('customAction.urlPlaceholder')}
-                        value={iconUrl}
-                        onChange={handleIconUrlChange}
-                        status={hasError ? 'error' : undefined}
-                    />
-                    <Button type="primary" onClick={onCreateAction}>
-                        {t('customAction.create')}
-                    </Button>
-                </CustomActionInputContainer>
-            </CSSTransition>
-        </>
+        <FormContainer>
+            <Input
+                placeholder={t('customAction.namePlaceholder')}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+            />
+            <Input
+                placeholder={t('customAction.urlPlaceholder')}
+                value={iconUrl}
+                onChange={handleIconUrlChange}
+                status={hasError ? 'error' : undefined}
+            />
+            <ActionButtons>
+                <Button type="primary" onClick={onCreateAction}>
+                    {t('customAction.create')}
+                </Button>
+                <Button onClick={closeForm}>
+                    {t('customAction.cancel')}
+                </Button>
+            </ActionButtons>
+        </FormContainer>
     );
 }
