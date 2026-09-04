@@ -2,7 +2,7 @@
 
 - Priority: Medium
 - Created: 2026-09-04
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-05
 - Model: GPT-5.6
 - Branch: feature/add-support-multi-row-rotation-layout
 - Polished: {YYYY-MM-DD}
@@ -47,7 +47,7 @@
 
 ## 解決方法
 
-1. 多段レイアウト計算処理を既存ロジックと分離して実装する
-2. Canvas 描画で段ごとの配置を正しく反映する
-3. 設定 UI と描画結果の整合を確認する
-4. 1 行表示と既存データの互換性を確認する
+1. `_working/mint-leaf` の `feature/add-support-multi-row-rotation-layout` で、1 行ストリップを描画してから `wrapWidth` で分割 blit する多段表示を追加した（`composeWrappedCanvas`）
+2. 折り返し幅・行間隔の設定 UI を Canvas ツールバーに追加し、未設定時は従来どおり 1 行表示のままにした
+3. プレビュー全体を確認できる fit-to-window 表示モードを追加した（既定の fit-to-height は維持）
+4. 実装をコミット `4ab8c97`（wrap）と `327cc63`（fit-to-window）に分けた。hintxiv 向け PR はこれから出す
