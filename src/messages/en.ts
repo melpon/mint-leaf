@@ -104,6 +104,8 @@ export const en = {
         rowSpacing: 'Row spacing',
         preview: 'Preview',
         previewClose: 'Close preview',
+        fitToWindow: 'Fit to window',
+        fitToHeight: 'Fit to height',
     },
     abilityIcon: {
         frameAlt: 'icon frame',

@@ -106,6 +106,8 @@ export const ja: Messages = {
         rowSpacing: '行間隔',
         preview: 'プレビュー',
         previewClose: 'プレビューを閉じる',
+        fitToWindow: 'ウィンドウに合わせる',
+        fitToHeight: '縦幅に合わせる',
     },
     abilityIcon: {
         frameAlt: 'アイコンフレーム',

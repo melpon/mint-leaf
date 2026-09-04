@@ -77,7 +77,6 @@ export const Home = ({ discordAuth }: HomeProps) => {
     const [rotation, setRotation] = useState<Action[]>([])
     const [prepullRotation, setPrepullRotation] = useState<Action[]>([])
     const [importError, setImportError] = useState(false)
-    const [previewWidth, setPreviewWidth] = useState(0)
     const [job, setJob] = useState<Job>(jobs['DRK'])
     const [rotationTitle, setRotationTitle] = useState('')
     const [expansion, setExpansion] = useState('')
@@ -90,7 +89,6 @@ export const Home = ({ discordAuth }: HomeProps) => {
     const [previewImageSrc, setPreviewImageSrc] = useState<string | null>(null)
     const [renderReady, setRenderReady] = useState(false)
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const canvasPreviewRef = useRef<HTMLDivElement>(null)
     const onRenderStateChange = useCallback((state: CanvasRenderState) => {
         setRenderReady(state.status === 'ready')
     }, [])
@@ -106,22 +104,6 @@ export const Home = ({ discordAuth }: HomeProps) => {
         setRotationTitle(t('defaults.rotationTitle'))
         setExpansion(t('defaults.expansion'))
     }, [localeReady]) // eslint-disable-line react-hooks/exhaustive-deps -- run once when locale is ready
-
-    useEffect(() => {
-        const element = canvasPreviewRef.current
-        if (!element) {
-            return
-        }
-
-        const updateWidth = () => {
-            setPreviewWidth(element.clientWidth)
-        }
-        updateWidth()
-
-        const observer = new ResizeObserver(updateWidth)
-        observer.observe(element)
-        return () => observer.disconnect()
-    }, [])
 
     // Append an action from search/palette (prepull list if it has a prepull time)
     const addAction = useCallback((action: Action, status?: Status) => {
@@ -331,7 +313,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
                         onImport={(text) => void importRotationText(text)}
                         onPaletteSelect={onPaletteSelect}
                     />
-                    <CanvasPreview ref={canvasPreviewRef}>
+                    <CanvasPreview>
                         <CanvasActionsBar
                             totalWidth={totalWidth}
                             wrapWidth={wrapWidth}
@@ -345,7 +327,6 @@ export const Home = ({ discordAuth }: HomeProps) => {
                             setUseBalanceLogo={setUseBalanceLogo}
                         />
                         <Canvas
-                            screenWidth={previewWidth}
                             prepullRotation={prepullRotation}
                             rotation={rotation}
                             jobName={getJobName(job, locale)}
