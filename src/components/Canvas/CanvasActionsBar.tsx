@@ -3,45 +3,51 @@ import { useSession } from 'next-auth/react'
 import styled from 'styled-components'
 import { useTranslation } from '@/context/LanguageContext'
 
-const FooterContainer = styled.div`
+const Bar = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
-    background-color: #121317;
-    color: white;
+    justify-content: flex-end;
+    gap: 12px;
     width: 100%;
-    border-top: 1px solid white;
+    padding: 8px 16px;
+    background-color: #1a1c24;
+    color: #e1e4e6;
     border-bottom: 1px solid white;
-    height: 50px;
-    gap: 1rem;
     flex-shrink: 0;
-    > * {
-        font-size: 16px;
-        line-height: 20px;
-    }
-`;
+    font-size: 14px;
+`
 
-interface FooterProps {
-    onExport: () => void;
-    useBalanceLogo: boolean;
-    setUseBalanceLogo: (useBalanceLogo: boolean) => void;
+interface CanvasActionsBarProps {
+    onPreview: () => void
+    onExport: () => void
+    useBalanceLogo: boolean
+    setUseBalanceLogo: (useBalanceLogo: boolean) => void
 }
 
-export const Footer = ({ onExport, useBalanceLogo, setUseBalanceLogo }: FooterProps) => {
+/** Right-pane toolbar: Preview / Export / Balance stamp */
+export const CanvasActionsBar = ({
+    onPreview,
+    onExport,
+    useBalanceLogo,
+    setUseBalanceLogo,
+}: CanvasActionsBarProps) => {
     const { data: session } = useSession()
     const { t } = useTranslation()
 
     return (
-        <FooterContainer>
+        <Bar>
+            <Button type="primary" onClick={onPreview}>
+                {t('canvas.preview')}
+            </Button>
             <Button type="primary" onClick={onExport}>
                 {t('footer.export')}
             </Button>
-            {session &&
+            {session && (
                 <Button type="primary" onClick={() => setUseBalanceLogo(!useBalanceLogo)}>
                     {useBalanceLogo ? t('footer.removeBalanceStamp') : t('footer.addBalanceStamp')}
                 </Button>
-            }
-        </FooterContainer>
-    );
+            )}
+        </Bar>
+    )
 }

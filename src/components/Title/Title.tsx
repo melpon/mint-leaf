@@ -10,19 +10,18 @@ const TitleContainer = styled.div`
     align-items: center;
     background-color: #121317;
     width: 100%;
-    border-top: 1px solid white;
     border-bottom: 1px solid white;
-    height: 70px;
+    height: 56px;
     padding: 0 1rem;
     gap: 8px;
+    flex-shrink: 0;
 `;
 
 const TitleTextContainer = styled.div`
     display: flex;
     flex-direction: column;
+    justify-content: center;
     height: 100%;
-    padding-top: 0.75rem;
-    padding-bottom: 0.5rem;
 `;
 
 const TitleWrapper = styled.div`
@@ -36,15 +35,15 @@ const TitleText = styled.h1`
     color: white;
     align-content: center;
     text-align: center;
-    font-size: 2.1em;
-    line-height: 0.9;
+    font-size: 1.5em;
+    line-height: 1;
     letter-spacing: 0.7px;
 `;
 
 const SubTitleText = styled.h2`
     color: #c8cbce;
     text-align: center;
-    font-size: 14px;
+    font-size: 12px;
     letter-spacing: 0.1px;
 `;
 
@@ -130,8 +129,8 @@ export const Title = ({ discordAuth }: TitleProps) => {
             <NextImage
                 src="/leaf-icon.svg"
                 alt={t('title.logoAlt')}
-                width={40}
-                height={40}
+                width={32}
+                height={32}
                 priority={true}
             />
             <TitleTextContainer>

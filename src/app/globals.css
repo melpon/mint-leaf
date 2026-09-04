@@ -44,9 +44,28 @@ body {
   height: 20px !important;
 }
 
+/* Match unchecked checkbox to dark Input chrome */
+.ant-checkbox:not(.ant-checkbox-checked) .ant-checkbox-inner {
+  background-color: #1d1d20 !important;
+  border-color: #555 !important;
+}
+
+.ant-checkbox-wrapper:hover .ant-checkbox:not(.ant-checkbox-checked) .ant-checkbox-inner {
+  border-color: #888 !important;
+}
+
 .ant-switch {
   width: 100px !important;
   height: 30px !important;
+}
+
+/* Dark panel: default unchecked track blends into the background */
+.ant-switch:not(.ant-switch-checked) {
+  background: #3a3d4a !important;
+}
+
+.ant-switch:not(.ant-switch-checked):hover:not(.ant-switch-disabled) {
+  background: #4a4d5a !important;
 }
 
 .ant-switch-inner-checked,
@@ -70,10 +89,87 @@ body {
 .ant-btn-primary, .ant-btn-default, .ant-btn-dangerous {
   background-color: #1d1d20 !important;
   border: 1.5px solid white !important;
+  color: white !important;
 }
 
-.ant-input-outlined {
+.ant-btn-default:hover,
+.ant-btn-primary:hover,
+.ant-btn-dangerous:hover {
+  color: #aaf0d1 !important;
+  border-color: #aaf0d1 !important;
+}
+
+/* Dark UI contrast for Input / TextArea / InputNumber */
+.ant-input,
+.ant-input-outlined,
+.ant-input-affix-wrapper,
+.ant-input-affix-wrapper-outlined,
+.ant-input-number,
+.ant-input-number-outlined,
+.ant-input-number .ant-input-number-input {
   background-color: #1d1d20 !important;
+  color: white !important;
+  border-color: #555 !important;
+}
+
+.ant-input::placeholder,
+.ant-input-outlined::placeholder,
+textarea.ant-input::placeholder {
+  color: #9a9da3 !important;
+  opacity: 1;
+}
+
+.ant-input:hover,
+.ant-input-outlined:hover,
+.ant-input-affix-wrapper:hover,
+.ant-input-number:hover {
+  border-color: #888 !important;
+}
+
+.ant-input:focus,
+.ant-input-outlined:focus,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused,
+.ant-input-number:focus,
+.ant-input-number-focused {
+  border-color: #aaf0d1 !important;
+}
+
+/* Keep ant status=error visible over the dark-input border overrides */
+.ant-input-status-error,
+.ant-input-outlined.ant-input-status-error,
+.ant-input-affix-wrapper-status-error,
+.ant-input-number-status-error,
+.ant-input-status-error:hover,
+.ant-input-outlined.ant-input-status-error:hover,
+.ant-input-affix-wrapper-status-error:hover,
+.ant-input-number-status-error:hover,
+.ant-input-status-error:focus,
+.ant-input-outlined.ant-input-status-error:focus,
+.ant-input-affix-wrapper-status-error:focus,
+.ant-input-number-status-error:focus {
+  border-color: #ff4d4f !important;
+}
+
+/* Match Import / Export Collapse to the dark panel */
+.ant-collapse,
+.ant-collapse-content,
+.ant-collapse-item {
+  background-color: #1a1c24 !important;
+  border-color: #555 !important;
+  color: white !important;
+}
+
+.ant-collapse .ant-collapse-header {
+  color: white !important;
+}
+
+.ant-collapse .ant-collapse-expand-icon {
+  color: #c8cbce !important;
+}
+
+.ant-collapse-content-box {
+  background-color: #1a1c24 !important;
   color: white !important;
 }
 

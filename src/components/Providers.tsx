@@ -13,7 +13,8 @@ const AntdLocaleProvider = ({ children }: { children: React.ReactNode }) => {
             locale={locale === 'ja' ? jaJP : enUS}
             theme={{
                 token: {
-                    colorPrimary: '#aaf0d1',
+                    // Solid primary for white-on-primary controls (Switch, Checkbox).
+                    colorPrimary: '#1f8a66',
                 },
             }}
         >
