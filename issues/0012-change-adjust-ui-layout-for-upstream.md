@@ -2,7 +2,7 @@
 
 - Priority: Medium
 - Created: 2026-09-04
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-04
 - Model: GPT-5.6
 - Branch: feature/change-adjust-ui-layout
 - Polished: {YYYY-MM-DD}
@@ -48,6 +48,7 @@ hintxiv/mint-leaf の既存体験を尊重したまま、作業効率が上が�
 
 ## 解決方法
 
-1. レイアウト変更点を UI 配置の差分に限定する
-2. 既存機能呼び出しの責務を維持したまま表示位置のみ調整する
-3. 主要操作の回帰確認を行う
+1. `_working/mint-leaf` の `feature/change-adjust-ui-layout` で、縦積み（Header / Abilities / Canvas / Footer）から編集ペインとプレビューを横に並べる画面構成へ変更した
+2. ローテーション編集の主体をテキスト入力から `Action[]`（リスト選択・詳細編集・DnD・Import/Export）へ移した
+3. Canvas のプレビュー表示を追加した
+4. 実装をコミット `4e4e1a2` にまとめ、`origin/main` を取り込んだうえで tip を `5961109` とした。hintxiv 向け PR はこれから出す
