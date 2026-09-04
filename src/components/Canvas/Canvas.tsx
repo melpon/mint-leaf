@@ -8,6 +8,7 @@ import { calculateBuffLinePositions, calculateTimeline } from './calculateBuffLi
 import { scale, styles } from './styles'
 import { drawLabel, drawGCDLabel, drawOGCDLabel } from './drawLabel'
 import { drawBuffLines } from './drawBuffLines'
+import { useTranslation } from '@/context/LanguageContext'
 
 const { height, widthInitial, positions, fonts, colors } = styles
 
@@ -46,6 +47,7 @@ const drawPrepullLine = (
     context: CanvasRenderingContext2D,
     x: number,
     midLine: number,
+    pullLabel: string,
 ) => {
     context.beginPath()
     context.moveTo(x + positions.prepullPadding, midLine + positions.pullLineHeightBelow)
@@ -57,7 +59,7 @@ const drawPrepullLine = (
     context.font = fonts.pullLabel
     context.textAlign = "center"
     context.textBaseline = "bottom"
-    context.fillText("Pull", x + positions.prepullPadding, midLine - positions.pullLineHeightAbove - positions.textBottomPadding)
+    context.fillText(pullLabel, x + positions.prepullPadding, midLine - positions.pullLineHeightAbove - positions.textBottomPadding)
 }
 
 const drawBalanceLogo = (
@@ -107,6 +109,10 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
     },
     ref,
 ) => {
+    const { t } = useTranslation()
+    const pullLabel = t('canvas.pull')
+    const levelPrefix = t('canvas.levelPrefix')
+    const patchLabel = t('canvas.patch')
     const innerRef = useRef<HTMLCanvasElement>(null)
     useImperativeHandle(ref, () => innerRef.current!, [])
     const prepullIconRefs = useRef<Array<HTMLImageElement | null>>([])
@@ -210,12 +216,12 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
         context.font = fonts.subtitle
         context.textAlign = "left"
         context.textBaseline = "top"
-        const subtitle = `${jobName} LV.${level}`
+        const subtitle = `${jobName} ${levelPrefix}${level}`
         const subtitleWidth = context.measureText(subtitle).width
         const subtitleHeight = context.measureText(subtitle).actualBoundingBoxAscent - context.measureText(subtitle).actualBoundingBoxDescent
         context.fillText(subtitle, positions.titleMarginLeft + positions.jobIconWidth + positions.jobIconPadding, positions.titleMarginTop + 64 * scale)
 
-        const expansionPatch = `${expansion} Patch ${patch}`
+        const expansionPatch = `${expansion} ${patchLabel} ${patch}`
         const expansionPatchWidth = context.measureText(expansionPatch).width
         context.textAlign = "right"
     
@@ -256,7 +262,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
 
         // Draw pull line
         if (prepullRotation.length > 0 && rotation.length > 0) {
-            drawPrepullLine(context, startPoint + prepullWidth + positions.rotationPadding, midLine)
+            drawPrepullLine(context, startPoint + prepullWidth + positions.rotationPadding, midLine, pullLabel)
         }
 
         // Draw rotation
@@ -289,7 +295,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((
         const buffLines = calculateBuffLinePositions(rotationIcons, timeline, statusIconRefs, width)
         const addedHeight = drawBuffLines(context, buffLines, height - positions.midlineAdjustBottom / 2, width - positions.rotationPadding)
         setBuffLineHeight(addedHeight)
-    }, [width, prepullIcons, rotationIcons, midLine, startPoint, prepullRotation.length, rotation.length, prepullWidth, screenWidth, jobIcon, title, jobName, level, expansion, patch, canvasWidth, buffLineHeight, useBalanceLogo])
+    }, [width, prepullIcons, rotationIcons, midLine, startPoint, prepullRotation.length, rotation.length, prepullWidth, screenWidth, jobIcon, title, jobName, level, expansion, patch, canvasWidth, buffLineHeight, useBalanceLogo, pullLabel, levelPrefix, patchLabel])
 
     return (
         <CanvasContainer $overflow={canvasWidth > screenWidth}>
