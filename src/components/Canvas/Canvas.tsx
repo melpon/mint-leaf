@@ -2,11 +2,12 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 import styled from 'styled-components'
 import { useTranslation } from '@/context/LanguageContext'
 import { auditRenderPlan } from './auditRenderPlan'
+import { blitWrappedCanvas, measureContentTop } from './composeWrappedCanvas'
 import { layoutInfographic } from './layoutInfographic'
 import { CanvasTextMeasurer } from './textLayout'
 import { loadRenderImages, paintRenderPlan } from './paintRenderPlan'
 import { Action, LayoutViolation } from './types'
-import { styles } from './styles'
+import { styles, wrapWidthMin } from './styles'
 
 const CanvasContainer = styled.div<{ $overflow?: boolean }>`
     display: flex;
@@ -41,6 +42,8 @@ interface CanvasProps {
     expansion: string
     patch: string
     useBalanceLogo: boolean
+    wrapWidth?: number | null
+    rowSpacing?: number | null
     onRenderStateChange?: (state: CanvasRenderState) => void
 }
 
@@ -69,6 +72,8 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {
         expansion,
         patch,
         useBalanceLogo,
+        wrapWidth = null,
+        rowSpacing = null,
         onRenderStateChange,
     } = props
     const { t } = useTranslation()
@@ -99,7 +104,8 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {
             const context = canvas.getContext('2d')
             if (!context) throw new Error('Canvas 2D rendering is unavailable.')
 
-            const plan = layoutInfographic({
+            const measurer = new CanvasTextMeasurer(context)
+            const layoutInput = {
                 prepullRotation,
                 rotation,
                 title,
@@ -112,15 +118,38 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {
                 pullLabel,
                 levelPrefix,
                 patchLabel,
-            }, new CanvasTextMeasurer(context))
-            const violations = auditRenderPlan(plan)
-            const images = await loadRenderImages(plan.requiredImages, abortController.signal)
+            }
+
+            // Always layout the full single-row strip first.
+            const stripPlan = layoutInfographic(layoutInput, measurer)
+            const violations = auditRenderPlan(stripPlan)
+            const images = await loadRenderImages(stripPlan.requiredImages, abortController.signal)
             if (abortController.signal.aborted || currentGeneration !== generation.current) return
 
-            canvas.width = plan.width
-            canvas.height = plan.height
-            setCanvasWidth(plan.width)
-            paintRenderPlan(canvas.getContext('2d')!, plan, images)
+            const stripCanvas = document.createElement('canvas')
+            stripCanvas.width = stripPlan.width
+            stripCanvas.height = stripPlan.height
+            paintRenderPlan(stripCanvas.getContext('2d')!, stripPlan, images)
+
+            let output = stripCanvas
+            // Ignore out-of-range wrap values; the toolbar commits only after debounce / blur clip.
+            const wrapEnabled = wrapWidth != null
+                && wrapWidth >= wrapWidthMin
+                && wrapWidth <= stripPlan.width
+            if (wrapEnabled) {
+                const contentTop = measureContentTop(stripPlan)
+                output = blitWrappedCanvas(
+                    stripCanvas,
+                    contentTop,
+                    wrapWidth,
+                    rowSpacing ?? styles.positions.rotationRowSpacing,
+                )
+            }
+
+            canvas.width = output.width
+            canvas.height = output.height
+            setCanvasWidth(output.width)
+            canvas.getContext('2d')!.drawImage(output, 0, 0)
             const readyState = { status: 'ready', violations } as const
             setRenderStatus('ready')
             onRenderStateChange?.(readyState)
@@ -146,6 +175,8 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {
         expansion,
         patch,
         useBalanceLogo,
+        wrapWidth,
+        rowSpacing,
         onRenderStateChange,
         pullLabel,
         levelPrefix,
