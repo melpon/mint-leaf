@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Canvas } from './Canvas/Canvas'
+import { Canvas, CanvasRenderState } from './Canvas/Canvas'
 import styled from 'styled-components'
 import { Action, Status } from './Canvas/types'
 import { textToRotation } from '../lib/parseRotation'
@@ -70,8 +70,12 @@ export const Home = ({ discordAuth }: HomeProps) => {
     const [useBalanceLogo, setUseBalanceLogo] = useState(false)
     const [selection, setSelection] = useState<SequenceSelection | null>(null)
     const [previewImageSrc, setPreviewImageSrc] = useState<string | null>(null)
+    const [renderReady, setRenderReady] = useState(false)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const canvasPreviewRef = useRef<HTMLDivElement>(null)
+    const onRenderStateChange = useCallback((state: CanvasRenderState) => {
+        setRenderReady(state.status === 'ready')
+    }, [])
 
     useEffect(() => {
         if (!localeReady) {
@@ -255,7 +259,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
     // Download the canvas as a PNG
     const exportInfographic = () => {
         const canvas = canvasRef.current
-        if (!canvas) return
+        if (!canvas || !renderReady) return
 
         const link = document.createElement('a')
         link.download = `${getJobName(job, locale)} ${rotationTitle}.png`
@@ -266,9 +270,9 @@ export const Home = ({ discordAuth }: HomeProps) => {
     // Open a canvas snapshot in the preview modal
     const openPreview = useCallback(() => {
         const canvas = canvasRef.current
-        if (!canvas) return
+        if (!canvas || !renderReady) return
         setPreviewImageSrc(canvas.toDataURL('image/png'))
-    }, [])
+    }, [renderReady])
 
     // Close the preview modal
     const closePreview = useCallback(() => {
@@ -309,6 +313,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
                         <CanvasActionsBar
                             onPreview={openPreview}
                             onExport={exportInfographic}
+                            exportReady={renderReady}
                             useBalanceLogo={useBalanceLogo}
                             setUseBalanceLogo={setUseBalanceLogo}
                         />
@@ -324,6 +329,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
                             level={level}
                             ref={canvasRef}
                             useBalanceLogo={useBalanceLogo}
+                            onRenderStateChange={onRenderStateChange}
                         />
                     </CanvasPreview>
                 </MainRow>

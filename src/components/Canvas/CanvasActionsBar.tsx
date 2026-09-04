@@ -21,14 +21,16 @@ const Bar = styled.div`
 interface CanvasActionsBarProps {
     onPreview: () => void
     onExport: () => void
+    exportReady: boolean
     useBalanceLogo: boolean
     setUseBalanceLogo: (useBalanceLogo: boolean) => void
 }
 
-/** Right-pane toolbar: Preview / Export / Balance stamp */
+// Right-pane toolbar: Preview / Export / Balance stamp
 export const CanvasActionsBar = ({
     onPreview,
     onExport,
+    exportReady,
     useBalanceLogo,
     setUseBalanceLogo,
 }: CanvasActionsBarProps) => {
@@ -37,10 +39,10 @@ export const CanvasActionsBar = ({
 
     return (
         <Bar>
-            <Button type="primary" onClick={onPreview}>
+            <Button type="primary" onClick={onPreview} disabled={!exportReady}>
                 {t('canvas.preview')}
             </Button>
-            <Button type="primary" onClick={onExport}>
+            <Button type="primary" onClick={onExport} disabled={!exportReady}>
                 {t('footer.export')}
             </Button>
             {session && (
