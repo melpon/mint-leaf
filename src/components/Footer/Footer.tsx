@@ -24,17 +24,18 @@ const FooterContainer = styled.div`
 
 interface FooterProps {
     onExport: () => void;
+    exportReady: boolean;
     useBalanceLogo: boolean;
     setUseBalanceLogo: (useBalanceLogo: boolean) => void;
 }
 
-export const Footer = ({ onExport, useBalanceLogo, setUseBalanceLogo }: FooterProps) => {
+export const Footer = ({ onExport, exportReady, useBalanceLogo, setUseBalanceLogo }: FooterProps) => {
     const { data: session } = useSession()
     const { t } = useTranslation()
 
     return (
         <FooterContainer>
-            <Button type="primary" onClick={onExport}>
+            <Button type="primary" onClick={onExport} disabled={!exportReady}>
                 {t('footer.export')}
             </Button>
             {session &&
