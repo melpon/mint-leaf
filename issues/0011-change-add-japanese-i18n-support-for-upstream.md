@@ -2,7 +2,7 @@
 
 - Priority: High
 - Created: 2026-09-04
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-04
 - Model: GPT-5.6
 - Branch: feature/change-add-japanese-i18n-support
 - Polished: {YYYY-MM-DD}
@@ -53,7 +53,8 @@ fork 側で最も利用価値が高い変更であり、他の UI 変更や機�
 
 ## 解決方法
 
-1. 既存文言のキー整理と翻訳キー参照の統一を行う
-2. 英語 / 日本語の文言セットを対で整備する
-3. タイトルを含む主要表示の切替挙動を統一する
-4. 既存機能の回帰を手動で確認する
+1. `_working/mint-leaf` の `feature/change-add-japanese-i18n-support` で、`LanguageProvider` / `t()` と `src/messages/{en,ja}.ts` を追加した
+2. タイトルバーに言語スイッチャーを置き、既存 UI の直書き文言を翻訳キー経由に置き換えた
+3. XIVAPI の検索・取得と `parseRotation` が選択中ロケールに追従するようにした
+4. 選択ロケールは `mint-leaf-locale` に保存し、再訪時に復元する。初回はブラウザ言語に従う
+5. 実装をコミット `970432c` にまとめた。hintxiv 向け PR はこれから出す
