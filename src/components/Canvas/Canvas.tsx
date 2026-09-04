@@ -88,6 +88,8 @@ interface CanvasProps {
     useBalanceLogo: boolean
     wrapWidth?: number | null
     rowSpacing?: number | null
+    // When false, show the bitmap at 1:1 (no CSS fit). Used by the render harness.
+    enableDisplayFit?: boolean
     onRenderStateChange?: (state: CanvasRenderState) => void
 }
 
@@ -117,6 +119,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {
         useBalanceLogo,
         wrapWidth = null,
         rowSpacing = null,
+        enableDisplayFit = true,
         onRenderStateChange,
     } = props
     const { t } = useTranslation()
@@ -139,6 +142,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {
     useImperativeHandle(ref, () => innerRef.current!, [])
 
     useEffect(() => {
+        if (!enableDisplayFit) return
         const element = viewportRef.current
         if (!element) return
 
@@ -153,7 +157,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {
         const observer = new ResizeObserver(updateSize)
         observer.observe(element)
         return () => observer.disconnect()
-    }, [])
+    }, [enableDisplayFit])
 
     useEffect(() => {
         const canvas = innerRef.current
@@ -252,6 +256,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {
     ])
 
     const displayScale = (() => {
+        if (!enableDisplayFit) return 1
         if (viewportSize.width <= 0 || viewportSize.height <= 0 || naturalSize.height <= 0) {
             return 1
         }
@@ -265,43 +270,48 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {
     })()
     const displayWidth = naturalSize.width * displayScale
     const displayHeight = naturalSize.height * displayScale
-    const overflowsHorizontally = displayWidth > viewportSize.width + 1
+    // Without fit, keep intrinsic bitmap size (no CSS width/height) so screenshots stay 1:1.
+    const displayStyle = enableDisplayFit
+        ? { width: displayWidth, height: displayHeight }
+        : undefined
+    const overflowsHorizontally = enableDisplayFit
+        ? displayWidth > viewportSize.width + 1
+        : true
 
     return (
         <Viewport ref={viewportRef}>
-            <CanvasContainer $overflow={overflowsHorizontally} $contain={fitToWindow}>
+            <CanvasContainer $overflow={overflowsHorizontally} $contain={enableDisplayFit && fitToWindow}>
                 <BorderedCanvas
                     ref={innerRef}
                     width={styles.widthInitial}
                     height={styles.height}
-                    style={{
-                        width: displayWidth,
-                        height: displayHeight,
-                    }}
+                    style={displayStyle}
                     data-render-state={renderStatus}
                     data-render-error={renderError || undefined}
                 />
             </CanvasContainer>
-            <ZoomControls>
-                <ZoomButton
-                    type="button"
-                    $active={fitToWindow}
-                    aria-label={t('canvas.fitToWindow')}
-                    title={t('canvas.fitToWindow')}
-                    onClick={() => setFitToWindow(true)}
-                >
-                    <CompressOutlined />
-                </ZoomButton>
-                <ZoomButton
-                    type="button"
-                    $active={!fitToWindow}
-                    aria-label={t('canvas.fitToHeight')}
-                    title={t('canvas.fitToHeight')}
-                    onClick={() => setFitToWindow(false)}
-                >
-                    <ExpandOutlined />
-                </ZoomButton>
-            </ZoomControls>
+            {enableDisplayFit && (
+                <ZoomControls>
+                    <ZoomButton
+                        type="button"
+                        $active={fitToWindow}
+                        aria-label={t('canvas.fitToWindow')}
+                        title={t('canvas.fitToWindow')}
+                        onClick={() => setFitToWindow(true)}
+                    >
+                        <CompressOutlined />
+                    </ZoomButton>
+                    <ZoomButton
+                        type="button"
+                        $active={!fitToWindow}
+                        aria-label={t('canvas.fitToHeight')}
+                        title={t('canvas.fitToHeight')}
+                        onClick={() => setFitToWindow(false)}
+                    >
+                        <ExpandOutlined />
+                    </ZoomButton>
+                </ZoomControls>
+            )}
         </Viewport>
     )
 })

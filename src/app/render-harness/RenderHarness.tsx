@@ -72,6 +72,7 @@ export const RenderHarness = ({ fixtureName }: { fixtureName: string }) => {
     return (
         <main data-testid="render-harness" data-ready={state.status === 'ready'} data-fixture={fixtureName}>
             <Canvas
+                enableDisplayFit={false}
                 prepullRotation={fixture.prepullRotation}
                 rotation={fixture.rotation}
                 title={fixture.title ?? 'Measured Rotation'}
