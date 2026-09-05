@@ -118,6 +118,7 @@ export const persistActionSettings = (action: Action) => {
 export const dataActionToDefaultAction = (dataAction: DataAction): Action => {
     const imageSrc = dataAction.icon ? dataAction.icon.toString() : ''
     const stored = getStoredCustomAction(dataAction.id)
+    const instanceId = crypto.randomUUID()
 
     // No saved prefs: start as a plain GCD with default timings.
     if (!stored) {
@@ -126,6 +127,7 @@ export const dataActionToDefaultAction = (dataAction: DataAction): Action => {
             id: dataAction.id,
             name: dataAction.name ?? '',
             imageSrc,
+            instanceId,
             recastTime: DEFAULT_RECAST_TIME,
             castTime: DEFAULT_CAST_TIME,
         }
@@ -141,6 +143,7 @@ export const dataActionToDefaultAction = (dataAction: DataAction): Action => {
             id: dataAction.id,
             name: dataAction.name ?? stored.name,
             imageSrc: imageSrc || stored.iconUrl,
+            instanceId,
             recastTime: stored.recastTime ?? DEFAULT_RECAST_TIME,
             castTime: stored.castTime ?? DEFAULT_CAST_TIME,
             statusApplied: status,
@@ -152,6 +155,7 @@ export const dataActionToDefaultAction = (dataAction: DataAction): Action => {
         id: dataAction.id,
         name: dataAction.name ?? stored.name,
         imageSrc: imageSrc || stored.iconUrl,
+        instanceId,
         lateWeave: stored.lateWeave ?? false,
         statusApplied: status,
     }

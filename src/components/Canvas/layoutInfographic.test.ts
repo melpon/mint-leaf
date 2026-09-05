@@ -64,7 +64,7 @@ describe('infographic layout plan', () => {
     it('keeps multiline GCD names and their counts in the same owner group', () => {
         const plan = layoutInfographic({
             ...baseInput,
-            rotation: [{ id: 'g1', type: 'gcd', name: 'A Very Long Global Cooldown Name Which Wraps', imageSrc: '/favicon.ico' }],
+            rotation: [{ id: 'g1', instanceId: 'instance-g1', type: 'gcd', name: 'A Very Long Global Cooldown Name Which Wraps', imageSrc: '/favicon.ico' }],
         }, measurer)
         const name = plan.textBlocks.find(block => block.id === 'rotation-0-name')
         const count = plan.textBlocks.find(block => block.id === 'rotation-0-count')
@@ -77,9 +77,9 @@ describe('infographic layout plan', () => {
         const plan = layoutInfographic({
             ...baseInput,
             rotation: [
-                { id: 'o1', type: 'ogcd', name: 'First weave with words', imageSrc: '/favicon.ico' },
-                { id: 'o2', type: 'ogcd', name: 'Second weave with words', imageSrc: '/favicon.ico' },
-                { id: 'o3', type: 'ogcd', name: 'Third weave with words', imageSrc: '/favicon.ico' },
+                { id: 'o1', instanceId: 'instance-o1', type: 'ogcd', name: 'First weave with words', imageSrc: '/favicon.ico' },
+                { id: 'o2', instanceId: 'instance-o2', type: 'ogcd', name: 'Second weave with words', imageSrc: '/favicon.ico' },
+                { id: 'o3', instanceId: 'instance-o3', type: 'ogcd', name: 'Third weave with words', imageSrc: '/favicon.ico' },
             ],
         }, measurer)
         const leaders = plan.primitives.filter((primitive): primitive is LinePrimitive =>
@@ -95,10 +95,10 @@ describe('infographic layout plan', () => {
         const plan = layoutInfographic({
             ...baseInput,
             prepullRotation: [
-                { id: 'p1', type: 'ogcd', name: 'Grade 6 Gemdraught of Intelligence', imageSrc: '/favicon.ico', prepull: -2 },
-                { id: 'p2', type: 'ogcd', name: 'Second prepull action', imageSrc: '/favicon.ico', prepull: -2 },
+                { id: 'p1', instanceId: 'instance-p1', type: 'ogcd', name: 'Grade 6 Gemdraught of Intelligence', imageSrc: '/favicon.ico', prepull: -2 },
+                { id: 'p2', instanceId: 'instance-p2', type: 'ogcd', name: 'Second prepull action', imageSrc: '/favicon.ico', prepull: -2 },
             ],
-            rotation: [{ id: 'g1', type: 'gcd', name: 'First GCD', imageSrc: '/favicon.ico' }],
+            rotation: [{ id: 'g1', instanceId: 'instance-g1', type: 'gcd', name: 'First GCD', imageSrc: '/favicon.ico' }],
         }, measurer)
         expect(auditRenderPlan(plan).filter(item => item.code === 'invalid-measurement' || item.code === 'out-of-bounds')).toEqual([])
         expect(plan.primitives.filter(primitive =>
@@ -125,13 +125,14 @@ describe('infographic layout plan', () => {
             ...baseInput,
             prepullRotation: [{
                 id: 'p1',
+                instanceId: 'instance-p1-buff',
                 type: 'ogcd',
                 name: 'Prepull Buff Action',
                 imageSrc: '/favicon.ico',
                 prepull: -2,
                 statusApplied: status,
             }],
-            rotation: [{ id: 'g1', type: 'gcd', name: 'First GCD', imageSrc: '/favicon.ico' }],
+            rotation: [{ id: 'g1', instanceId: 'instance-g1', type: 'gcd', name: 'First GCD', imageSrc: '/favicon.ico' }],
         }, measurer)
         const prepullIcon = plan.primitives.find(primitive => primitive.id === 'prepull-0-image-0')
         const pullLine = plan.primitives.find((primitive): primitive is LinePrimitive => primitive.id === 'pull-line')
@@ -150,6 +151,7 @@ describe('infographic layout plan', () => {
             ...baseInput,
             prepullRotation: [{
                 id: 'p1',
+                instanceId: 'instance-p1-prepull-only',
                 type: 'ogcd',
                 name: 'Prepull Buff Action',
                 imageSrc: '/favicon.ico',

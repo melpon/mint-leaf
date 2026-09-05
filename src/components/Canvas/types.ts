@@ -11,6 +11,8 @@ interface BaseAction {
     id: string;
     name: string;
     imageSrc: string;
+    // Unique id for this occurrence in a sequence (dnd / React keys). Not the game action id.
+    instanceId: string;
     /* The number of seconds before the pull to use this action */
     prepull?: number;
     statusApplied?: Status;

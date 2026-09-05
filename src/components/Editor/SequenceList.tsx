@@ -151,9 +151,6 @@ const List = styled.div`
     gap: 4px;
 `
 
-// dnd-kit item ids must be unique across the page; include the list name.
-const itemId = (list: SequenceListKind, index: number) => `${list}:${index}`
-
 interface SequenceListProps {
     prepullRotation: Action[]
     rotation: Action[]
@@ -179,7 +176,7 @@ const SortableActionRow = ({
     onRemove: (list: SequenceListKind, index: number) => void
 }) => {
     const { t } = useTranslation()
-    const id = itemId(list, index)
+    const id = action.instanceId
     const {
         attributes,
         listeners,
@@ -276,7 +273,7 @@ const ActionRows = ({
         return null
     }
 
-    const ids = actions.map((_, index) => itemId(list, index))
+    const ids = actions.map((action) => action.instanceId)
 
     const onDragEnd = (event: DragEndEvent) => {
         const { active, over } = event
@@ -284,7 +281,7 @@ const ActionRows = ({
             return
         }
 
-        // Map dnd-kit ids back to indices in this list only.
+        // Map stable occurrence ids back to indices in this list only.
         const fromIndex = ids.indexOf(String(active.id))
         const toIndex = ids.indexOf(String(over.id))
         if (fromIndex < 0 || toIndex < 0) {
@@ -305,7 +302,7 @@ const ActionRows = ({
                 <List>
                     {actions.map((action, index) => (
                         <SortableActionRow
-                            key={ids[index]}
+                            key={action.instanceId}
                             list={list}
                             index={index}
                             action={action}
