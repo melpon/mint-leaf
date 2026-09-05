@@ -101,8 +101,13 @@ export const ja: Messages = {
         pull: '戦闘開始',
         patch: 'パッチ',
         levelPrefix: 'Lv.',
+        totalWidth: '全体幅',
+        wrapWidth: '折り返し幅',
+        rowSpacing: '行間隔',
         preview: 'プレビュー',
         previewClose: 'プレビューを閉じる',
+        fitToWindow: 'ウィンドウに合わせる',
+        fitToHeight: '縦幅に合わせる',
     },
     abilityIcon: {
         frameAlt: 'アイコンフレーム',

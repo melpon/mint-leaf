@@ -1,9 +1,11 @@
 "use client"
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, CanvasRenderState } from './Canvas/Canvas'
 import styled from 'styled-components'
 import { Action, Status } from './Canvas/types'
+import { calculateIconPositions } from './Canvas/calculateIconPositions'
+import { styles, wrapWidthMin } from './Canvas/styles'
 import { textToRotation } from '../lib/parseRotation'
 import { Job, jobs } from '../data/jobs'
 import { Title } from './Title/Title'
@@ -15,6 +17,8 @@ import { CanvasPreviewModal } from './Canvas/CanvasPreviewModal'
 import { useTranslation } from '@/context/LanguageContext'
 import { getJobName } from '@/lib/jobs'
 import { DataAction } from '@/app/api'
+
+const { positions } = styles
 
 const Container = styled.div`
     display: flex;
@@ -48,6 +52,18 @@ const CanvasPreview = styled.div`
     min-height: 0;
 `
 
+// Unwrapped strip length: content width plus left/right rotation padding.
+const calculateTotalWidth = (prepullRotation: Action[], rotation: Action[]): number => {
+    const prepullWidth = calculateIconPositions(prepullRotation).width
+    const rotationWidth = calculateIconPositions(rotation).width
+    const contentWidth = rotationWidth + (
+        prepullRotation.length > 0
+            ? prepullWidth + (rotation.length > 0 ? positions.prepullPadding * 2 : 0)
+            : 0
+    )
+    return Math.round(contentWidth + wrapWidthMin)
+}
+
 // Sort prepull actions by time ascending (more negative = earlier)
 const sortPrepull = (actions: Action[]): Action[] =>
     [...actions].sort((a, b) => (a.prepull ?? 0) - (b.prepull ?? 0))
@@ -61,22 +77,26 @@ export const Home = ({ discordAuth }: HomeProps) => {
     const [rotation, setRotation] = useState<Action[]>([])
     const [prepullRotation, setPrepullRotation] = useState<Action[]>([])
     const [importError, setImportError] = useState(false)
-    const [previewWidth, setPreviewWidth] = useState(0)
     const [job, setJob] = useState<Job>(jobs['DRK'])
     const [rotationTitle, setRotationTitle] = useState('')
     const [expansion, setExpansion] = useState('')
     const [patch, setPatch] = useState<string>('7.4')
     const [level, setLevel] = useState<number>(100)
     const [useBalanceLogo, setUseBalanceLogo] = useState(false)
+    const [wrapWidth, setWrapWidth] = useState<number | null>(null)
+    const [rowSpacing, setRowSpacing] = useState<number | null>(null)
     const [selection, setSelection] = useState<SequenceSelection | null>(null)
     const [previewImageSrc, setPreviewImageSrc] = useState<string | null>(null)
     const [renderReady, setRenderReady] = useState(false)
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const canvasPreviewRef = useRef<HTMLDivElement>(null)
     const onRenderStateChange = useCallback((state: CanvasRenderState) => {
         setRenderReady(state.status === 'ready')
     }, [])
 
+    const totalWidth = useMemo(
+        () => calculateTotalWidth(prepullRotation, rotation),
+        [prepullRotation, rotation],
+    )
     useEffect(() => {
         if (!localeReady) {
             return
@@ -84,22 +104,6 @@ export const Home = ({ discordAuth }: HomeProps) => {
         setRotationTitle(t('defaults.rotationTitle'))
         setExpansion(t('defaults.expansion'))
     }, [localeReady]) // eslint-disable-line react-hooks/exhaustive-deps -- run once when locale is ready
-
-    useEffect(() => {
-        const element = canvasPreviewRef.current
-        if (!element) {
-            return
-        }
-
-        const updateWidth = () => {
-            setPreviewWidth(element.clientWidth)
-        }
-        updateWidth()
-
-        const observer = new ResizeObserver(updateWidth)
-        observer.observe(element)
-        return () => observer.disconnect()
-    }, [])
 
     // Append an action from search/palette (prepull list if it has a prepull time)
     const addAction = useCallback((action: Action, status?: Status) => {
@@ -309,8 +313,13 @@ export const Home = ({ discordAuth }: HomeProps) => {
                         onImport={(text) => void importRotationText(text)}
                         onPaletteSelect={onPaletteSelect}
                     />
-                    <CanvasPreview ref={canvasPreviewRef}>
+                    <CanvasPreview>
                         <CanvasActionsBar
+                            totalWidth={totalWidth}
+                            wrapWidth={wrapWidth}
+                            setWrapWidth={setWrapWidth}
+                            rowSpacing={rowSpacing}
+                            setRowSpacing={setRowSpacing}
                             onPreview={openPreview}
                             onExport={exportInfographic}
                             exportReady={renderReady}
@@ -318,7 +327,6 @@ export const Home = ({ discordAuth }: HomeProps) => {
                             setUseBalanceLogo={setUseBalanceLogo}
                         />
                         <Canvas
-                            screenWidth={previewWidth}
                             prepullRotation={prepullRotation}
                             rotation={rotation}
                             jobName={getJobName(job, locale)}
@@ -329,6 +337,8 @@ export const Home = ({ discordAuth }: HomeProps) => {
                             level={level}
                             ref={canvasRef}
                             useBalanceLogo={useBalanceLogo}
+                            wrapWidth={wrapWidth}
+                            rowSpacing={rowSpacing}
                             onRenderStateChange={onRenderStateChange}
                         />
                     </CanvasPreview>

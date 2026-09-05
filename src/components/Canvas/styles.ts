@@ -64,6 +64,7 @@ export const styles = {
         weaveslotEndAdjustLeft: 4 * scale,
         prepullGcdPadding: 16 * scale,
         prepullOgcdPadding: 40 * scale,
+        rotationRowSpacing: 1300,
     },
     fonts: {
         pullLabel: `${32 * scale}px ${roboto.style.fontFamily}`,
@@ -83,3 +84,6 @@ export const styles = {
         gcdCount: '#7a7b7d'
     },
 } as const
+
+// Left + right rotation padding; empty-rotation strip width and wrap-width floor.
+export const wrapWidthMin = styles.positions.rotationPadding * 2

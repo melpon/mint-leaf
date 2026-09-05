@@ -99,8 +99,13 @@ export const en = {
         pull: 'Pull',
         patch: 'Patch',
         levelPrefix: 'LV.',
+        totalWidth: 'Total width',
+        wrapWidth: 'Wrap width',
+        rowSpacing: 'Row spacing',
         preview: 'Preview',
         previewClose: 'Close preview',
+        fitToWindow: 'Fit to window',
+        fitToHeight: 'Fit to height',
     },
     abilityIcon: {
         frameAlt: 'icon frame',
