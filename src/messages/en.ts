@@ -54,6 +54,11 @@ export const en = {
         searchAction: 'Search for an action...',
         searchStatus: 'Search for a status...',
         orDivider: '- or -',
+        jobActionListFilter: 'Filter...',
+        jobActionListReload: 'Reload skill list',
+        jobActionListLoading: 'Loading skill list...',
+        jobActionListError: 'Failed to load skill list',
+        jobActionListEmpty: 'No skills found for this job',
     },
     actionBuilder: {
         unknown: 'Unknown',
