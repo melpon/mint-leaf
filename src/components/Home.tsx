@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { Canvas, CanvasRenderState } from './Canvas/Canvas'
 import styled from 'styled-components'
 import { Action, Status } from './Canvas/types'
@@ -14,9 +14,11 @@ import { EditorPanel, dataActionToDefaultAction, persistActionSettings } from '.
 import { SequenceListKind, SequenceSelection } from './Editor/SequenceList'
 import { CanvasActionsBar } from './Canvas/CanvasActionsBar'
 import { CanvasPreviewModal } from './Canvas/CanvasPreviewModal'
+import { LibraryPanel } from './Library/LibraryPanel'
 import { useTranslation } from '@/context/LanguageContext'
 import { getJobName } from '@/lib/jobs'
 import { DataAction } from '@/app/api'
+import { type RotationRecord } from '@/lib/rotationLibraryStore'
 
 const { positions } = styles
 
@@ -28,7 +30,9 @@ const Container = styled.div`
     overflow: hidden;
 `
 
+// Below Title. Anchors the floating library panel over MetaBar.
 const Workspace = styled.div`
+    position: relative;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -73,7 +77,7 @@ interface HomeProps {
 }
 
 export const Home = ({ discordAuth }: HomeProps) => {
-    const { locale, localeReady, t } = useTranslation()
+    const { locale } = useTranslation()
     const [rotation, setRotation] = useState<Action[]>([])
     const [prepullRotation, setPrepullRotation] = useState<Action[]>([])
     const [importError, setImportError] = useState(false)
@@ -89,21 +93,52 @@ export const Home = ({ discordAuth }: HomeProps) => {
     const [previewImageSrc, setPreviewImageSrc] = useState<string | null>(null)
     const [renderReady, setRenderReady] = useState(false)
     const canvasRef = useRef<HTMLCanvasElement>(null)
+
     const onRenderStateChange = useCallback((state: CanvasRenderState) => {
         setRenderReady(state.status === 'ready')
     }, [])
+
+    // Load the active library record into editor state.
+    const applyRecordToEditor = useCallback((record: RotationRecord) => {
+        setJob(jobs[record.job] ?? jobs['DRK'])
+        setRotationTitle(record.title)
+        setExpansion(record.expansion)
+        setPatch(record.patch)
+        setLevel(record.level)
+        setWrapWidth(record.wrapWidth)
+        setRowSpacing(record.rowSpacing)
+        setPrepullRotation(record.prepullRotation)
+        setRotation(record.rotation)
+        setSelection(null)
+        setImportError(false)
+    }, [])
+
+    const editorSnapshot = useMemo(() => ({
+        job,
+        rotationTitle,
+        expansion,
+        patch,
+        level,
+        wrapWidth,
+        rowSpacing,
+        prepullRotation,
+        rotation,
+    }), [
+        job,
+        rotationTitle,
+        expansion,
+        patch,
+        level,
+        wrapWidth,
+        rowSpacing,
+        prepullRotation,
+        rotation,
+    ])
 
     const totalWidth = useMemo(
         () => calculateTotalWidth(prepullRotation, rotation),
         [prepullRotation, rotation],
     )
-    useEffect(() => {
-        if (!localeReady) {
-            return
-        }
-        setRotationTitle(t('defaults.rotationTitle'))
-        setExpansion(t('defaults.expansion'))
-    }, [localeReady]) // eslint-disable-line react-hooks/exhaustive-deps -- run once when locale is ready
 
     // Append an action from search/palette (prepull list if it has a prepull time)
     const addAction = useCallback((action: Action, status?: Status) => {
@@ -287,6 +322,10 @@ export const Home = ({ discordAuth }: HomeProps) => {
         <Container>
             <Title discordAuth={discordAuth} />
             <Workspace>
+                <LibraryPanel
+                    editorSnapshot={editorSnapshot}
+                    onActiveRecord={applyRecordToEditor}
+                />
                 <MetaBar
                     currentJob={job}
                     setJob={setJob}
