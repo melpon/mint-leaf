@@ -2,7 +2,7 @@
 
 - Priority: Medium
 - Created: 2026-09-04
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-05
 - Model: GPT-5.6
 - Branch: feature/add-selected-job-palette-view
 - Polished: {YYYY-MM-DD}
@@ -49,7 +49,7 @@
 
 ## 解決方法
 
-1. 選択ジョブと連動するパレット表示コンポーネントを追加する
-2. 既存のジョブ選択状態を再利用して表示を更新する
-3. アクション選択と編集フローの回帰確認を行う
-4. ジョブ別スキル一覧の TTL キャッシュ（即表示／stale 表示／手動再取得）をパレットの振る舞いに含める
+1. `_working/mint-leaf` の `feature/add-selected-job-palette-view` で、選択ジョブの PvE スキルパレット（`JobActionList`）を Editor パレットに追加した
+2. XIVAPI からジョブ技を全件取得し（`xivapiSearchAll`）、ロールアクションとホットバー非セットの置換スキルも含めた。`ClassJobCategory=1`（全クラス）の共有コンテンツは除外した
+3. アイコンホバーでスキル説明ツールチップを表示し、一覧は localStorage の TTL キャッシュ（即表示／手動再取得）にした
+4. 実装コミットは `99cbfef`。hintxiv 向け PR はこれから出す
