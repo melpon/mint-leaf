@@ -40,7 +40,7 @@ describe('composeWrappedCanvas', () => {
     it('places content below the header chrome', () => {
         const plan = layoutInfographic({
             ...baseInput,
-            rotation: [{ id: 'g1', type: 'gcd', name: 'First GCD', imageSrc: '/favicon.ico' }],
+            rotation: [{ id: 'g1', instanceId: 'instance-g1', type: 'gcd', name: 'First GCD', imageSrc: '/favicon.ico' }],
         }, measurer)
         const contentTop = measureContentTop(plan)
         expect(contentTop).toBeGreaterThan(0)

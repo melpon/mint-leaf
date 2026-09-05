@@ -19,17 +19,19 @@ const gcd = (id: string, name: string, extra: Partial<Action> = {}): Action => (
     type: 'gcd',
     name,
     imageSrc,
+    instanceId: crypto.randomUUID(),
     recastTime: 2.5,
     ...extra,
-} as Action)
+})
 
 const ogcd = (id: string, name: string, extra: Partial<Action> = {}): Action => ({
     id,
     type: 'ogcd',
     name,
     imageSrc,
+    instanceId: crypto.randomUUID(),
     ...extra,
-} as Action)
+})
 
 const fixtures: Record<string, { prepullRotation: Action[]; rotation: Action[]; title?: string; expansion?: string; patch?: string; logo?: boolean }> = {
     empty: { prepullRotation: [], rotation: [] },

@@ -45,6 +45,7 @@ const parseActionLine = async (line: string, language: Locale): Promise<Action |
                     id: id,
                     name: action.name,
                     imageSrc: actionIconSrc,
+                    instanceId: crypto.randomUUID(),
                     prepull: prepull ? clamp(parseFloat(prepull), -30, 0) : undefined,
                     recastTime: recastTime ? clamp(parseFloat(recastTime), 0, 30) : undefined,
                     castTime: castTime ? clamp(parseFloat(castTime), 0, 30) : undefined,
@@ -56,6 +57,7 @@ const parseActionLine = async (line: string, language: Locale): Promise<Action |
                     id: id,
                     name: action.name,
                     imageSrc: actionIconSrc,
+                    instanceId: crypto.randomUUID(),
                     prepull: prepull ? clamp(parseFloat(prepull), -30, 0) : undefined,
                     lateWeave: lateWeave === 'lateWeave' ? true : false,
                 } as oGCD;
