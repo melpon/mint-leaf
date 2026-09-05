@@ -1,3 +1,5 @@
 export type { DataAction } from './xivapi/types'
 export { searchForAction, getActionByID } from './xivapi/actionSearch'
 export { searchForStatus, getStatusByID } from './xivapi/statusSearch'
+export { fetchJobActions } from './xivapi/jobActionList'
+export type { JobActionFetchResult, JobListAction } from './xivapi/jobActionList'

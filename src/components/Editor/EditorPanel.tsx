@@ -5,6 +5,7 @@ import { Action } from '../Canvas/types'
 import { DataAction, searchForAction } from '@/app/api'
 import SearchInput from '../Abilities/SearchInput'
 import { CustomActionInput } from '../Abilities/CustomActionInput'
+import { JobActionList } from '../Abilities/JobActionList'
 import { useLanguage, useTranslation } from '@/context/LanguageContext'
 import { SequenceList, SequenceListKind, SequenceSelection } from './SequenceList'
 import { SequenceDetail } from './SequenceDetail'
@@ -204,7 +205,9 @@ export const EditorPanel = ({
             <PaletteColumn>
                 <Block>
                     <SectionTitle>{t('editor.palette')}</SectionTitle>
+                    <JobActionList job={job} locale={locale} onSelect={onPaletteSelect} />
                     <PaletteExtras>
+                        <Divider>{t('abilities.orDivider')}</Divider>
                         <SearchInput
                             job={job}
                             onSelect={onPaletteSelect}
