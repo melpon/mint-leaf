@@ -2,7 +2,7 @@
 
 - Priority: Medium
 - Created: 2026-09-04
-- Completed: {YYYY-MM-DD}
+- Completed: 2026-09-06
 - Model: GPT-5.6
 - Branch: feature/add-local-save-for-multiple-rotations
 - Polished: {YYYY-MM-DD}
@@ -50,7 +50,6 @@
 
 ## 解決方法
 
-1. localStorage の保存スキーマを定義する
-2. 読み込み時の互換処理と異常データ耐性を実装する
-3. 一覧切替、追加、削除の UI と状態遷移を実装する
-4. import / export、エクスポート、編集フローの回帰確認を行う
+1. `_working/mint-leaf` の `feature/add-local-save-for-multiple-rotations` で、複数ローテーションの localStorage 保存・読込と Library パネル（切替・新規・削除・並び替え・コピー／貼り付け）を実装した
+2. 保存スキーマに `STORE_VERSION` と段階マイグレーション枠を用意し、壊れた JSON や未知バージョンは空ライブラリへ作り直す耐性を入れた。クリップボード用 JSON は `format` / `version` 付きでストレージとは分離し、レコードパースは共有した
+3. hintxiv/mint-leaf への PR https://github.com/hintxiv/mint-leaf/pull/15 が 2026-09-06 にマージされた
