@@ -1,11 +1,10 @@
 "use client"
 
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, CanvasRenderState } from './Canvas/Canvas'
 import styled from 'styled-components'
 import { Action, Status } from './Canvas/types'
-import { calculateIconPositions } from './Canvas/calculateIconPositions'
-import { styles, wrapWidthMin } from './Canvas/styles'
+import { normalizeRowCount, rotationGroupStarts } from './Canvas/rotationRows'
 import { textToRotation } from '../lib/parseRotation'
 import { Job, jobs } from '../data/jobs'
 import { Title } from './Title/Title'
@@ -19,8 +18,6 @@ import { useTranslation } from '@/context/LanguageContext'
 import { getJobName } from '@/lib/jobs'
 import { DataAction } from '@/app/api'
 import { type RotationRecord } from '@/lib/rotationLibraryStore'
-
-const { positions } = styles
 
 const Container = styled.div`
     display: flex;
@@ -56,18 +53,6 @@ const CanvasPreview = styled.div`
     min-height: 0;
 `
 
-// Unwrapped strip length: content width plus left/right rotation padding.
-const calculateTotalWidth = (prepullRotation: Action[], rotation: Action[]): number => {
-    const prepullWidth = calculateIconPositions(prepullRotation).width
-    const rotationWidth = calculateIconPositions(rotation).width
-    const contentWidth = rotationWidth + (
-        prepullRotation.length > 0
-            ? prepullWidth + (rotation.length > 0 ? positions.prepullPadding * 2 : 0)
-            : 0
-    )
-    return Math.round(contentWidth + wrapWidthMin)
-}
-
 // Sort prepull actions by time ascending (more negative = earlier)
 const sortPrepull = (actions: Action[]): Action[] =>
     [...actions].sort((a, b) => (a.prepull ?? 0) - (b.prepull ?? 0))
@@ -77,7 +62,7 @@ interface HomeProps {
 }
 
 export const Home = ({ discordAuth }: HomeProps) => {
-    const { locale } = useTranslation()
+    const { locale, localeReady, t } = useTranslation()
     const [rotation, setRotation] = useState<Action[]>([])
     const [prepullRotation, setPrepullRotation] = useState<Action[]>([])
     const [importError, setImportError] = useState(false)
@@ -87,7 +72,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
     const [patch, setPatch] = useState<string>('7.4')
     const [level, setLevel] = useState<number>(100)
     const [useBalanceLogo, setUseBalanceLogo] = useState(false)
-    const [wrapWidth, setWrapWidth] = useState<number | null>(null)
+    const [rowCount, setRowCount] = useState(1)
     const [rowSpacing, setRowSpacing] = useState<number | null>(null)
     const [selection, setSelection] = useState<SequenceSelection | null>(null)
     const [previewImageSrc, setPreviewImageSrc] = useState<string | null>(null)
@@ -105,7 +90,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
         setExpansion(record.expansion)
         setPatch(record.patch)
         setLevel(record.level)
-        setWrapWidth(record.wrapWidth)
+        setRowCount(record.rowCount)
         setRowSpacing(record.rowSpacing)
         setPrepullRotation(record.prepullRotation)
         setRotation(record.rotation)
@@ -119,7 +104,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
         expansion,
         patch,
         level,
-        wrapWidth,
+        rowCount,
         rowSpacing,
         prepullRotation,
         rotation,
@@ -129,16 +114,22 @@ export const Home = ({ discordAuth }: HomeProps) => {
         expansion,
         patch,
         level,
-        wrapWidth,
+        rowCount,
         rowSpacing,
         prepullRotation,
         rotation,
     ])
 
-    const totalWidth = useMemo(
-        () => calculateTotalWidth(prepullRotation, rotation),
-        [prepullRotation, rotation],
-    )
+    const maxRows = useMemo(() => rotationGroupStarts(rotation).length, [rotation])
+    const effectiveRowCount = normalizeRowCount(rowCount, maxRows)
+    useEffect(() => setRowCount(current => normalizeRowCount(current, maxRows)), [maxRows])
+    useEffect(() => {
+        if (!localeReady) {
+            return
+        }
+        setRotationTitle(t('defaults.rotationTitle'))
+        setExpansion(t('defaults.expansion'))
+    }, [localeReady]) // eslint-disable-line react-hooks/exhaustive-deps -- run once when locale is ready
 
     // Append an action from search/palette (prepull list if it has a prepull time)
     const addAction = useCallback((action: Action, status?: Status) => {
@@ -354,9 +345,9 @@ export const Home = ({ discordAuth }: HomeProps) => {
                     />
                     <CanvasPreview>
                         <CanvasActionsBar
-                            totalWidth={totalWidth}
-                            wrapWidth={wrapWidth}
-                            setWrapWidth={setWrapWidth}
+                            maxRows={maxRows}
+                            rowCount={effectiveRowCount}
+                            setRowCount={setRowCount}
                             rowSpacing={rowSpacing}
                             setRowSpacing={setRowSpacing}
                             onPreview={openPreview}
@@ -376,7 +367,7 @@ export const Home = ({ discordAuth }: HomeProps) => {
                             level={level}
                             ref={canvasRef}
                             useBalanceLogo={useBalanceLogo}
-                            wrapWidth={wrapWidth}
+                            rowCount={effectiveRowCount}
                             rowSpacing={rowSpacing}
                             onRenderStateChange={onRenderStateChange}
                         />

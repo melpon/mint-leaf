@@ -19,7 +19,7 @@ export interface RotationRecord {
     expansion: string
     patch: string
     level: number
-    wrapWidth: number | null
+    rowCount: number
     rowSpacing: number | null
     prepullRotation: Action[]
     rotation: Action[]
@@ -42,7 +42,7 @@ export const createEmptyRecord = (options?: {
     expansion: options?.expansion ?? en.defaults.expansion,
     patch: '7.4',
     level: 100,
-    wrapWidth: null,
+    rowCount: 1,
     rowSpacing: null,
     prepullRotation: [],
     rotation: [],
@@ -153,7 +153,7 @@ export const parseRotationRecord = (
     if (typeof record['level'] !== 'number' || !Number.isFinite(record['level'])) {
         return null
     }
-    if (record['wrapWidth'] !== null && typeof record['wrapWidth'] !== 'number') {
+    if (typeof record['rowCount'] !== 'number' || !Number.isFinite(record['rowCount'])) {
         return null
     }
     if (record['rowSpacing'] !== null && typeof record['rowSpacing'] !== 'number') {
@@ -170,7 +170,7 @@ export const parseRotationRecord = (
         expansion: record['expansion'],
         patch: record['patch'],
         level: record['level'],
-        wrapWidth: record['wrapWidth'] as number | null,
+        rowCount: record['rowCount'],
         rowSpacing: record['rowSpacing'] as number | null,
         prepullRotation: record['prepullRotation'],
         rotation: record['rotation'],

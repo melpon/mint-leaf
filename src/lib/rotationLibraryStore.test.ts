@@ -53,7 +53,7 @@ const sampleRecord = (overrides?: Partial<RotationRecord>): RotationRecord => ({
     expansion: 'Dawntrail',
     patch: '7.4',
     level: 100,
-    wrapWidth: null,
+    rowCount: 1,
     rowSpacing: null,
     prepullRotation: [],
     rotation: [],

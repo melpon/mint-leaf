@@ -9,7 +9,7 @@ const sampleRecord = (): RotationRecord => ({
     expansion: 'Dawntrail',
     patch: '7.4',
     level: 100,
-    wrapWidth: 1200,
+    rowCount: 2,
     rowSpacing: null,
     prepullRotation: [
         {
@@ -56,7 +56,7 @@ describe('rotationRecordText', () => {
         expect(imported.expansion).toBe('Dawntrail')
         expect(imported.patch).toBe('7.4')
         expect(imported.level).toBe(100)
-        expect(imported.wrapWidth).toBe(1200)
+        expect(imported.rowCount).toBe(2)
         expect(imported.rowSpacing).toBeNull()
         expect(imported.prepullRotation).toHaveLength(1)
         expect(imported.prepullRotation[0]?.id).toBe('7390')

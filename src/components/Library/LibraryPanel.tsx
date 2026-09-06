@@ -235,7 +235,7 @@ export interface EditorSnapshot {
     expansion: string
     patch: string
     level: number
-    wrapWidth: number | null
+    rowCount: number
     rowSpacing: number | null
     prepullRotation: Action[]
     rotation: Action[]
@@ -253,7 +253,7 @@ const buildRecordFromEditor = (id: string, fields: EditorSnapshot): RotationReco
     expansion: fields.expansion,
     patch: fields.patch,
     level: fields.level,
-    wrapWidth: fields.wrapWidth,
+    rowCount: fields.rowCount,
     rowSpacing: fields.rowSpacing,
     prepullRotation: fields.prepullRotation,
     rotation: fields.rotation,
@@ -316,7 +316,7 @@ const recordsEqual = (left: RotationRecord, right: RotationRecord): boolean => (
     && left.expansion === right.expansion
     && left.patch === right.patch
     && left.level === right.level
-    && left.wrapWidth === right.wrapWidth
+    && left.rowCount === right.rowCount
     && left.rowSpacing === right.rowSpacing
     && actionArraysEqual(left.prepullRotation, right.prepullRotation)
     && actionArraysEqual(left.rotation, right.rotation)
